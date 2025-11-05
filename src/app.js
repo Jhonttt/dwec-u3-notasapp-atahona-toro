@@ -1,3 +1,60 @@
+// Traducciones para ES y EN
+const TRAD = {
+  es: {
+    crear: "Nota creada",
+    borrar: "¿Borrar la nota?",
+    completada: "Completar",
+    revertir: "Revertir",
+    borrarBtn: "Borrar",
+    titulo: "NotasApp — DWEC U3",
+    nombreWeb: "NotasApp",
+    hoy: "Hoy",
+    semana: "Semana",
+    todas: "Todas",
+    titulo: "Titulo",
+    texto: "Texto",
+    fecha: "Fecha",
+    prioridad: "Prioridad",
+    baja: "Baja",
+    media: "Media",
+    alta: "Alta",
+    aniadir: "Añadir",
+    lista: "Notas",
+    panel: "Abrir Panel Diario"
+  },
+  en: {
+    crear: "Note created",
+    borrar: "Delete the note?",
+    completada: "Complete",
+    revertir: "Undo",
+    borrarBtn: "Delete",
+    titulo: "NotesApp — DWEC U3",
+    nombreWeb: "NotesApp",
+    hoy: "Today",
+    semana: "Week",
+    todas: "All",
+    titulo: "Title",
+    texto: "Text",
+    fecha: "Date",
+    prioridad: "Priority",
+    baja: "Low",
+    media: "Medium",
+    alta: "High",
+    aniadir: "Add",
+    lista: "Notes",
+    panel: "Open Daily Panel"
+  }
+};
+
+function getLang() {
+  const lang = (navigator.language || "es").slice(0,2);
+  return TRAD[lang] ? lang : "es";
+}
+
+function t(key) {
+  return TRAD[getLang()][key] || key;
+}
+
 // DWEC U3 — Plantilla mínima NotasApp
 
 /** @typedef {{ id:string, texto:string, fecha:string, prioridad:number, completada?:boolean }} Nota */
@@ -8,6 +65,24 @@ const ESTADO = {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+
+  document.title = t("titulo");
+  document.querySelector("h1").textContent = t("nombreWeb");
+  document.querySelector("button[data-hash='#hoy']").textContent = t("hoy");
+  document.querySelector("button[data-hash='#semana']").textContent = t("semana");
+  document.querySelector("button[data-hash='#todas']").textContent = t("todas");
+  document.querySelector("#formTitle").textContent = t("titulo");
+  document.querySelector("label:first-child span").textContent = t("texto");
+  document.querySelector("label:nth-child(2) span").textContent = t("fecha");
+  document.querySelector("label:nth-child(3) span").textContent = t("prioridad");
+  document.querySelector("option[value='1']").textContent = t("baja");
+  document.querySelector("option[value='2']").textContent = t("media");
+  document.querySelector("option[value='3']").textContent = t("alta");
+  document.querySelector("button[type='submit']").textContent = t("aniadir");
+  document.querySelector("h2#listTitle").textContent = t("lista");
+  document.querySelector("#btnPanelDiario").textContent = t("panel");
+
+
   document.querySelectorAll("nav [data-hash]").forEach(btn => {
     btn.addEventListener("click", () => { location.hash = btn.getAttribute("data-hash"); });
   });
@@ -74,8 +149,8 @@ function render() {
         <time datetime="${N.fecha}">${formatearFecha(N.fecha)}</time>
       </header>
       <footer>
-        <button data-acc="revertir" data-id="${N.id}">Revertir</button>
-        <button data-acc="borrar" data-id="${N.id}">Borrar</button>
+        <button data-acc="revertir" data-id="${N.id}">${t("revertir")}</button>
+        <button data-acc="borrar" data-id="${N.id}">${t("borrarBtn")}</button>
       </footer>`;
     } else {
       CARD.innerHTML = `
@@ -84,12 +159,12 @@ function render() {
         <time datetime="${N.fecha}">${formatearFecha(N.fecha)}</time>
       </header>
       <footer>
-        <button data-acc="completar" data-id="${N.id}">Completar</button>
-        <button data-acc="borrar" data-id="${N.id}">Borrar</button>
+        <button data-acc="completar" data-id="${N.id}">${t("completada")}</button>
+        <button data-acc="borrar" data-id="${N.id}">${t("borrarBtn")}</button>
       </footer>
     `;
-  }
-  CONT.appendChild(CARD);
+    }
+    CONT.appendChild(CARD);
   }
   CONT.querySelectorAll("button[data-acc]").forEach(btn => btn.addEventListener("click", onAccionNota));
 }
@@ -108,7 +183,7 @@ function onSubmitNota(e) {
     const NOTA = crearNota(TEXTO, FECHA, PRIORIDAD);
     ESTADO.notas.push(NOTA);
     e.target.reset();
-    alert("Nota creada");
+  alert(t("crear"));
     render();
   } catch (err) { alert(err.message); }
 }
@@ -119,7 +194,7 @@ function onAccionNota(e) {
   const ACC = BTN.getAttribute("data-acc");
   const IDX = ESTADO.notas.findIndex(n => n.id === ID);
   if (IDX < 0) return;
-  if (ACC === "borrar" && confirm("¿Borrar la nota?")) ESTADO.notas.splice(IDX, 1);
+  if (ACC === "borrar" && confirm(t("borrar"))) ESTADO.notas.splice(IDX, 1);
   if (ACC === "completar") ESTADO.notas[IDX].completada = true;
   if (ACC === "revertir") ESTADO.notas[IDX].completada = false;
   render();
