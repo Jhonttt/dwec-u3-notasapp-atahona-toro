@@ -66,7 +66,19 @@ function render() {
   for (const N of VISIBLES) {
     const CARD = document.createElement("article");
     CARD.className = "nota";
-    CARD.innerHTML = `
+    if (N.completada) {
+      CARD.classList.add("completada");
+      CARD.innerHTML = `
+      <header>
+        <strong>[P${N.prioridad}] ${escapeHtml(N.texto)}</strong>
+        <time datetime="${N.fecha}">${formatearFecha(N.fecha)}</time>
+      </header>
+      <footer>
+        <button data-acc="revertir" data-id="${N.id}">Revertir</button>
+        <button data-acc="borrar" data-id="${N.id}">Borrar</button>
+      </footer>`;
+    } else {
+      CARD.innerHTML = `
       <header>
         <strong>[P${N.prioridad}] ${escapeHtml(N.texto)}</strong>
         <time datetime="${N.fecha}">${formatearFecha(N.fecha)}</time>
@@ -76,7 +88,8 @@ function render() {
         <button data-acc="borrar" data-id="${N.id}">Borrar</button>
       </footer>
     `;
-    CONT.appendChild(CARD);
+  }
+  CONT.appendChild(CARD);
   }
   CONT.querySelectorAll("button[data-acc]").forEach(btn => btn.addEventListener("click", onAccionNota));
 }
@@ -108,6 +121,7 @@ function onAccionNota(e) {
   if (IDX < 0) return;
   if (ACC === "borrar" && confirm("¿Borrar la nota?")) ESTADO.notas.splice(IDX, 1);
   if (ACC === "completar") ESTADO.notas[IDX].completada = true;
+  if (ACC === "revertir") ESTADO.notas[IDX].completada = false;
   render();
 }
 
