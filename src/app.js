@@ -87,6 +87,14 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   document.getElementById("formNota").addEventListener("submit", onSubmitNota);
   document.getElementById("btnPanelDiario").addEventListener("click", abrirPanelDiario);
+
+  //Hacemos que persistan los temas
+  const TEMA=localStorage.getItem("tema")|| "oscuro";
+  const ESTILO= document.querySelector("link");
+
+  if (TEMA=="claro"){
+
+  }
   cargarNotas();
   render();
 });
@@ -258,9 +266,13 @@ document.getElementById("tema").addEventListener("click", function (event) {
   if (enlace == "styles.css") {
     estilos.setAttribute("href", "styles2.css");
     document.getElementById("tema").textContent = "Claro";
+    //alamcenamos los temas
+    localStorage.setItem("temaGuardado","claro");
   } else {
     estilos.setAttribute("href", "styles.css");
     document.getElementById("tema").textContent = "Oscuro";
+    //almacenamos los temas
+    localStorage.setItem("temaGuardado","oscuro");
   }
 });
 
