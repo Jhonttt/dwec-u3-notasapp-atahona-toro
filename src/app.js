@@ -231,7 +231,8 @@ function onAccionNota(e) {
 function abrirPanelDiario() {
   const REF = window.open("panel.html", "PanelDiario", "width=420,height=560");
   if (!REF) { alert("Pop-up bloqueado. Permita ventanas emergentes."); return; }
-  const SNAPSHOT = { tipo: "SNAPSHOT", notas: filtrarNotas(ESTADO.notas) };
+   const SNAPSHOT = { tipo: "SNAPSHOT", notas: filtrarNotas(ESTADO.notas) };
+  localStorage.setItem("notas",JSON.stringify(ESTADO.notas));
   setTimeout(() => { try { REF.postMessage(SNAPSHOT, "*"); } catch { } }, 400);
 }
 
@@ -240,6 +241,8 @@ window.addEventListener("message", (ev) => {
   if (ev.data.tipo === "BORRADO") {
     const ID = ev.data.id;
     ESTADO.notas = ESTADO.notas.filter(n => n.id !== ID);
+    //Es nesario actualizar el local storage
+    localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
     render();
   }
 });
