@@ -82,7 +82,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelector("h2#listTitle").textContent = t("lista");
   document.querySelector("#btnPanelDiario").textContent = t("panel");
 
-
   document.querySelectorAll("nav [data-hash]").forEach(btn => {
     btn.addEventListener("click", () => { location.hash = btn.getAttribute("data-hash"); });
   });
@@ -237,3 +236,19 @@ window.addEventListener("message", (ev) => {
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c]));
 }
+
+// cambiar color
+document.getElementById("tema").addEventListener("click", function (event) {
+  event.preventDefault();
+  let estilos = document.querySelector("link");
+  let enlace = estilos.getAttribute("href");
+  if (enlace == "styles.css") {
+    estilos.removeAttribute("href");
+    estilos.setAttribute("href", "styles2.css");
+    document.getElementById("tema").textContent = "Claro";
+  } else {
+    estilos.removeAttribute("href");
+    estilos.setAttribute("href", "styles.css");
+    document.getElementById("tema").textContent = "Oscuro";
+  }
+});
