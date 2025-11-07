@@ -88,6 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   document.getElementById("formNota").addEventListener("submit", onSubmitNota);
   document.getElementById("btnPanelDiario").addEventListener("click", abrirPanelDiario);
+  cargarNotas();
   render();
 });
 
@@ -104,19 +105,19 @@ function crearNota(texto, fecha, prioridad) {
   return {
     id: "n" + Math.random().toString(36).slice(2),
     texto: T,
-    fecha: F.toISOString().slice(0,10),
+    fecha: F.toISOString().slice(0, 10),
     prioridad: P
   };
 }
 
 function obtenerFiltroDesdeHash() {
   const H = (location.hash || "#todas").toLowerCase();
-  return ["#hoy","#semana","#todas"].includes(H) ? H : "#todas";
+  return ["#hoy", "#semana", "#todas"].includes(H) ? H : "#todas";
 }
 
 function filtrarNotas(notas) {
   const HOY = new Date();
-  const YMD = HOY.toISOString().slice(0,10);
+  const YMD = HOY.toISOString().slice(0, 10);
   if (ESTADO.filtro === "#hoy") return notas.filter(n => n.fecha === YMD);
   if (ESTADO.filtro === "#semana") {
     const FIN = new Date(HOY);
@@ -127,7 +128,7 @@ function filtrarNotas(notas) {
 }
 
 function ordenarNotas(notas) {
-  return [...notas].sort((a,b) =>
+  return [...notas].sort((a, b) =>
     b.prioridad - a.prioridad ||
     new Date(a.fecha) - new Date(b.fecha) ||
     a.texto.localeCompare(b.texto)
@@ -182,10 +183,27 @@ function onSubmitNota(e) {
   try {
     const NOTA = crearNota(TEXTO, FECHA, PRIORIDAD);
     ESTADO.notas.push(NOTA);
-    e.target.reset();
-  alert(t("crear"));
+    // Guardamos las notas en un JSON
+    localStorage.setItem("notas",JSON.stringify(ESTADO.notas));
+    alert("Nota creada");
     render();
   } catch (err) { alert(err.message); }
+}
+
+// Crear metodo para cargar todas las notas en el localStorage
+function cargarNotas() {
+  //Obtenemos el valor de las notas
+  const DATOS =localStorage.getItem("notas");
+
+  //No existen notas guardadas
+  if(!DATOS) return ;
+
+  const NOTASGUARDADAS=JSON.parse(DATOS);
+
+  //Recorremos todas las notas para asegurarnos que pasen por Crear Nota
+  for (const N of NOTASGUARDADAS) {
+   ESTADO.notas.push(crearNota(N.texto,N.fecha,N.prioridad));
+  }
 }
 
 function onAccionNota(e) {
@@ -204,7 +222,7 @@ function abrirPanelDiario() {
   const REF = window.open("panel.html", "PanelDiario", "width=420,height=560");
   if (!REF) { alert("Pop-up bloqueado. Permita ventanas emergentes."); return; }
   const SNAPSHOT = { tipo: "SNAPSHOT", notas: filtrarNotas(ESTADO.notas) };
-  setTimeout(() => { try { REF.postMessage(SNAPSHOT, "*"); } catch {} }, 400);
+  setTimeout(() => { try { REF.postMessage(SNAPSHOT, "*"); } catch { } }, 400);
 }
 
 window.addEventListener("message", (ev) => {
@@ -217,5 +235,5 @@ window.addEventListener("message", (ev) => {
 });
 
 function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[c]));
+  return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c]));
 }
