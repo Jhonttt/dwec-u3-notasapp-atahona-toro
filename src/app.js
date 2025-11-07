@@ -65,6 +65,8 @@ const ESTADO = {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("🚀 Aplicación iniciada. Filtro actual:", ESTADO.filtro); // RF3
+  console.log("🌍 Idioma actual del navegador:", navigator.language); // RF2
 
   document.title = t("titulo");
   document.querySelector("h1").textContent = t("nombreWeb");
@@ -83,16 +85,19 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelector("#btnPanelDiario").textContent = t("panel");
 
   document.querySelectorAll("nav [data-hash]").forEach(btn => {
-    btn.addEventListener("click", () => { location.hash = btn.getAttribute("data-hash"); });
+    btn.addEventListener("click", () => {
+      location.hash = btn.getAttribute("data-hash");
+      console.log("🔗 Hash cambiado a:", location.hash); // RF3
+    });
   });
   document.getElementById("formNota").addEventListener("submit", onSubmitNota);
   document.getElementById("btnPanelDiario").addEventListener("click", abrirPanelDiario);
 
   //Hacemos que persistan los temas
   //Obtenemos el tema del navegador
-  const TEMA = localStorage.getItem("tema") || "oscuro";
+  const TEMA = localStorage.getItem("tema") || "claro";
   const ESTILO = document.querySelector("link");
-
+  
   if (TEMA == "claro") {
     ESTILO.setAttribute("href", "styles2.css");
     document.getElementById("tema").textContent = "Claro";
@@ -100,6 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ESTILO.setAttribute("href", "styles.css");
     document.getElementById("tema").textContent = "Oscuro";
   }
+  console.log("🎨 Tema cargado desde localStorage:", TEMA); // RF9
   cargarNotas();
   render();
 });
@@ -111,8 +117,9 @@ window.addEventListener("hashchange", () => {
 
 function crearNota(texto, fecha, prioridad) {
   const T = String(texto).trim();
-  const P = Math.max(1, Math.min(3, Number(prioridad) || 1));
-  const F = new Date(fecha);
+  const P = Math.max(1, Math.min(3, Number(prioridad) || 1)); // uso de Math y Number
+  const F = new Date(fecha); // uso de Date
+  console.log("📝 Intentando crear nota con:", { texto: T, fecha: F, prioridad: P }); // RF1
   if (!T || Number.isNaN(F.getTime())) throw new Error("Datos de nota inválidos");
   return {
     id: "n" + Math.random().toString(36).slice(2),
@@ -152,6 +159,7 @@ function render() {
   const CONT = document.getElementById("listaNotas");
   CONT.innerHTML = "";
   const VISIBLES = ordenarNotas(filtrarNotas(ESTADO.notas));
+  console.log("🧱 Renderizando", VISIBLES.length, "notas visibles."); // RF4
   for (const N of VISIBLES) {
     const CARD = document.createElement("article");
     CARD.className = "nota";
@@ -233,6 +241,7 @@ function onAccionNota(e) {
   const IDX = ESTADO.notas.findIndex(n => n.id === ID);
   if (IDX < 0) return;
   // Para borrar, completar y revertir
+  console.log("⚙️ Acción de nota:", ACC, "ID:", ID); // RF8
   if (ACC === "borrar" && confirm(t("borrar"))) ESTADO.notas.splice(IDX, 1);
   if (ACC === "completar") ESTADO.notas[IDX].completada = true;
   if (ACC === "revertir")  ESTADO.notas[IDX].completada = false;
@@ -244,9 +253,11 @@ function onAccionNota(e) {
 }
 
 function abrirPanelDiario() {
+  console.log("🪟 Abriendo Panel Diario..."); // RF7
   const REF = window.open("panel.html", "PanelDiario", "width=420,height=560");
   if (!REF) { alert("Pop-up bloqueado. Permita ventanas emergentes."); return; }
-   const SNAPSHOT = { tipo: "SNAPSHOT", notas: filtrarNotas(ESTADO.notas) };
+  const SNAPSHOT = { tipo: "SNAPSHOT", notas: filtrarNotas(ESTADO.notas) };
+  console.log("📤 Enviando snapshot al panel:", SNAPSHOT); // RF10
   localStorage.setItem("notas",JSON.stringify(ESTADO.notas));
   setTimeout(() => { try { REF.postMessage(SNAPSHOT, "*"); } catch { } }, 400);
 }
@@ -322,6 +333,7 @@ function contarNotasSemanalesCompletadas() {
       contador++;
     }
   });
+  console.log("📆 Notas completadas esta semana:", contador); // RF1 RF5
   return contador;
 }
 

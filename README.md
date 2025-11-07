@@ -6,6 +6,9 @@
 1. Abrir `src/index.html` en un navegador moderno.
 2. Completar la lógica según los RF (ver enunciado de la UD).
 3. Añadir evidencias de depuración (capturas) en este README o en la carpeta que decidas.
+![Depuración 1](debug1.png)
+![Depuración 2](debug2.png)
+![Depuración 3](debug3.png)
 
 ## Justificación de persistencia (rellenar)
 - Mecanismo elegido: Cookies ☐  /  Web Storage ☐
