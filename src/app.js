@@ -89,11 +89,16 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("btnPanelDiario").addEventListener("click", abrirPanelDiario);
 
   //Hacemos que persistan los temas
-  const TEMA=localStorage.getItem("tema")|| "oscuro";
-  const ESTILO= document.querySelector("link");
+  //Obtenemos el tema del navegador
+  const TEMA = localStorage.getItem("tema") || "oscuro";
+  const ESTILO = document.querySelector("link");
 
-  if (TEMA=="claro"){
-
+  if (TEMA == "claro") {
+    ESTILO.setAttribute("href", "styles2.css");
+    document.getElementById("tema").textContent = "Claro";
+  } else {
+    ESTILO.setAttribute("href", "styles.css");
+    document.getElementById("tema").textContent = "Oscuro";
   }
   cargarNotas();
   render();
@@ -258,7 +263,7 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c]));
 }
 
-// cambiar color
+// Cambiar de color
 document.getElementById("tema").addEventListener("click", function (event) {
   event.preventDefault();
   let estilos = document.querySelector("link");
@@ -266,17 +271,15 @@ document.getElementById("tema").addEventListener("click", function (event) {
   if (enlace == "styles.css") {
     estilos.setAttribute("href", "styles2.css");
     document.getElementById("tema").textContent = "Claro";
-    //alamcenamos los temas
-    localStorage.setItem("temaGuardado","claro");
+    //almacenamos los temas
+    localStorage.setItem("tema", "claro");
   } else {
     estilos.setAttribute("href", "styles.css");
     document.getElementById("tema").textContent = "Oscuro";
     //almacenamos los temas
-    localStorage.setItem("temaGuardado","oscuro");
+    localStorage.setItem("tema", "oscuro");
   }
 });
-
-
 
 document.querySelectorAll(".tamanio").forEach(tamanio => {
   tamanio.addEventListener("click", function (event) {
