@@ -266,11 +266,8 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c]));
 }
 
-<<<<<<< HEAD
-// Cambiar de color
-=======
+
 // Cambiar el tema de color
->>>>>>> 70a1397 (feat(app.js/styles.css/styles2.css): cambiar el styles.css y styles2.css y añadir la funcionalidad del contador de notas semanales completadas)
 document.getElementById("tema").addEventListener("click", function (event) {
   event.preventDefault();
   let estilos = document.querySelector("link");
@@ -288,10 +285,8 @@ document.getElementById("tema").addEventListener("click", function (event) {
   }
 });
 
-<<<<<<< HEAD
-=======
+
 // Cambiar el tamaño de la página
->>>>>>> 70a1397 (feat(app.js/styles.css/styles2.css): cambiar el styles.css y styles2.css y añadir la funcionalidad del contador de notas semanales completadas)
 document.querySelectorAll(".tamanio").forEach(tamanio => {
   tamanio.addEventListener("click", function (event) {
     event.preventDefault();
@@ -320,10 +315,6 @@ function contarNotasSemanalesCompletadas() {
   const hoy = new Date();
   const finSemana = new Date(hoy);
   finSemana.setDate(hoy.getDate() + 7);
-
-<<<<<<< HEAD
-document.getElementById("notas").textContent = notasCompletadas;
-=======
   let contador = 0;
   notas.forEach(nota => {
     const fechaNota = new Date(nota.fecha);
@@ -336,4 +327,3 @@ document.getElementById("notas").textContent = notasCompletadas;
 
 // Mostrar el contador en el elemento con id "notas"
 document.getElementById("notas").textContent = contarNotasSemanalesCompletadas();
->>>>>>> 70a1397 (feat(app.js/styles.css/styles2.css): cambiar el styles.css y styles2.css y añadir la funcionalidad del contador de notas semanales completadas)
