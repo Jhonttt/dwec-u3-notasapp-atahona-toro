@@ -232,11 +232,14 @@ function onAccionNota(e) {
   const ACC = BTN.getAttribute("data-acc");
   const IDX = ESTADO.notas.findIndex(n => n.id === ID);
   if (IDX < 0) return;
+  // Para borrar, completar y revertir
   if (ACC === "borrar" && confirm(t("borrar"))) ESTADO.notas.splice(IDX, 1);
   if (ACC === "completar") ESTADO.notas[IDX].completada = true;
-  if (ACC === "revertir") ESTADO.notas[IDX].completada = false;
+  if (ACC === "revertir")  ESTADO.notas[IDX].completada = false;
   //Actualizar el local storage
   localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
+  // Actualizar el contador de notas semanales completadas
+  document.getElementById("notas").textContent = contarNotasSemanalesCompletadas();
   render();
 }
 
@@ -263,7 +266,8 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c]));
 }
 
-// Cambiar de color
+
+// Cambiar el tema de color
 document.getElementById("tema").addEventListener("click", function (event) {
   event.preventDefault();
   let estilos = document.querySelector("link");
@@ -281,6 +285,8 @@ document.getElementById("tema").addEventListener("click", function (event) {
   }
 });
 
+
+// Cambiar el tamaño de la página
 document.querySelectorAll(".tamanio").forEach(tamanio => {
   tamanio.addEventListener("click", function (event) {
     event.preventDefault();
@@ -301,15 +307,23 @@ document.querySelectorAll(".tamanio").forEach(tamanio => {
   });
 });
 
-const DATOS = localStorage.getItem("notas");
-const NOTASSEMANALESCOMPLETADAS = JSON.parse.DATOS;
+// Contador de notas semanales completadas
+function contarNotasSemanalesCompletadas() {
+  const datos = localStorage.getItem("notas");
+  const notas = JSON.parse(datos);
 
-NOTASSEMANALESCOMPLETADAS.forEach(N =>{
   const hoy = new Date();
-  let notasCompletadas = 0;
-  if (N.completada == true && N.fecha <= hoy + 7 && N.fecha >= hoy) {
-    notasCompletadas++;
-  }
-});
+  const finSemana = new Date(hoy);
+  finSemana.setDate(hoy.getDate() + 7);
+  let contador = 0;
+  notas.forEach(nota => {
+    const fechaNota = new Date(nota.fecha);
+    if (nota.completada === true && fechaNota >= hoy && fechaNota <= finSemana) {
+      contador++;
+    }
+  });
+  return contador;
+}
 
-document.getElementById("notas").textContent = notasCompletadas;
+// Mostrar el contador en el elemento con id "notas"
+document.getElementById("notas").textContent = contarNotasSemanalesCompletadas();
