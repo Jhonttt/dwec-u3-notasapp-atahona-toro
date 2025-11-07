@@ -297,3 +297,16 @@ document.querySelectorAll(".tamanio").forEach(tamanio => {
     }
   });
 });
+
+const DATOS = localStorage.getItem("notas");
+const NOTASSEMANALESCOMPLETADAS = JSON.parse.DATOS;
+
+NOTASSEMANALESCOMPLETADAS.forEach(N =>{
+  const hoy = new Date();
+  let notasCompletadas = 0;
+  if (N.completada == true && N.fecha <= hoy + 7 && N.fecha >= hoy) {
+    notasCompletadas++;
+  }
+});
+
+document.getElementById("notas").textContent = notasCompletadas;
