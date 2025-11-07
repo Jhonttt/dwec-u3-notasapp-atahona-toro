@@ -47,7 +47,7 @@ const TRAD = {
 };
 
 function getLang() {
-  const lang = (navigator.language || "es").slice(0,2);
+  const lang = (navigator.language || "es").slice(0, 2);
   return TRAD[lang] ? lang : "es";
 }
 
@@ -105,7 +105,8 @@ function crearNota(texto, fecha, prioridad) {
     id: "n" + Math.random().toString(36).slice(2),
     texto: T,
     fecha: F.toISOString().slice(0, 10),
-    prioridad: P
+    prioridad: P,
+    completada: false
   };
 }
 
@@ -183,7 +184,7 @@ function onSubmitNota(e) {
     const NOTA = crearNota(TEXTO, FECHA, PRIORIDAD);
     ESTADO.notas.push(NOTA);
     // Guardamos las notas en un JSON
-    localStorage.setItem("notas",JSON.stringify(ESTADO.notas));
+    localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
     alert("Nota creada");
     render();
   } catch (err) { alert(err.message); }
@@ -192,16 +193,23 @@ function onSubmitNota(e) {
 // Crear metodo para cargar todas las notas en el localStorage
 function cargarNotas() {
   //Obtenemos el valor de las notas
-  const DATOS =localStorage.getItem("notas");
+  const DATOS = localStorage.getItem("notas");
 
   //No existen notas guardadas
-  if(!DATOS) return ;
+  if (!DATOS) return;
 
-  const NOTASGUARDADAS=JSON.parse(DATOS);
+  const NOTASGUARDADAS = JSON.parse(DATOS);
 
   //Recorremos todas las notas para asegurarnos que pasen por Crear Nota
   for (const N of NOTASGUARDADAS) {
-   ESTADO.notas.push(crearNota(N.texto,N.fecha,N.prioridad));
+    ESTADO.notas.push({
+      id: N.id,
+      texto: N.texto,
+      fecha: N.fecha,
+      prioridad: N.prioridad,
+      completada: N.completada || false
+    }
+    );
   }
 }
 
@@ -214,6 +222,8 @@ function onAccionNota(e) {
   if (ACC === "borrar" && confirm(t("borrar"))) ESTADO.notas.splice(IDX, 1);
   if (ACC === "completar") ESTADO.notas[IDX].completada = true;
   if (ACC === "revertir") ESTADO.notas[IDX].completada = false;
+  //Actualizar el local storage
+  localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
   render();
 }
 
@@ -243,12 +253,32 @@ document.getElementById("tema").addEventListener("click", function (event) {
   let estilos = document.querySelector("link");
   let enlace = estilos.getAttribute("href");
   if (enlace == "styles.css") {
-    estilos.removeAttribute("href");
     estilos.setAttribute("href", "styles2.css");
     document.getElementById("tema").textContent = "Claro";
   } else {
-    estilos.removeAttribute("href");
     estilos.setAttribute("href", "styles.css");
     document.getElementById("tema").textContent = "Oscuro";
   }
+});
+
+
+
+document.querySelectorAll(".tamanio").forEach(tamanio => {
+  tamanio.addEventListener("click", function (event) {
+    event.preventDefault();
+    switch (tamanio.getAttribute("id")) {
+      case "a3":
+        document.querySelector("*").style.fontSize = "1.6em";
+        break;
+      case "a4":
+        document.querySelector("*").style.fontSize = "1.25em";
+        break;
+      case "a5":
+        document.querySelector("*").style.fontSize = "1em";
+        break;
+      default:
+        document.querySelector("*").style.fontSize = "1em";
+        break;
+    }
+  });
 });

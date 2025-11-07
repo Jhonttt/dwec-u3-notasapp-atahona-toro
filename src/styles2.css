@@ -73,7 +73,6 @@ nav button:hover {
 
 .completada {
   background-color: var(--success);
-  color: #000;
 }
 
 /* Inputs y formularios */
@@ -108,4 +107,21 @@ label span {
   display: block;
   color: var(--text-muted);
   margin-bottom: .25rem;
+}
+
+.container-header {
+    position: relative;
+    display: flex;
+    align-items: center; 
+    justify-content: space-between; 
+    padding-right: 20px;
+}
+
+h1 {
+    display: inline-block;
+    margin: 0;
+}
+
+.container-header p {
+    margin: 0;
 }
