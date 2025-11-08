@@ -46,6 +46,7 @@ const TRAD = {
   }
 };
 
+//Obtenemos si el lenguaje es ingles (en) o español (es)
 function getLang() {
   const lang = (navigator.language || "es").slice(0, 2);
   return TRAD[lang] ? lang : "es";
@@ -67,7 +68,7 @@ const ESTADO = {
 document.addEventListener("DOMContentLoaded", () => {
   console.log("🚀 Aplicación iniciada. Filtro actual:", ESTADO.filtro); // RF3
   console.log("🌍 Idioma actual del navegador:", navigator.language); // RF2
-
+  //Traducimos las palabras dependiendo del idioma seleccionado
   document.title = t("titulo");
   document.querySelector("h1").textContent = t("nombreWeb");
   document.querySelector("button[data-hash='#hoy']").textContent = t("hoy");
@@ -83,7 +84,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelector("button[type='submit']").textContent = t("aniadir");
   document.querySelector("h2#listTitle").textContent = t("lista");
   document.querySelector("#btnPanelDiario").textContent = t("panel");
-
   document.querySelectorAll("nav [data-hash]").forEach(btn => {
     btn.addEventListener("click", () => {
       location.hash = btn.getAttribute("data-hash");
@@ -97,11 +97,13 @@ document.addEventListener("DOMContentLoaded", () => {
   //Obtenemos el tema del navegador
   const TEMA = localStorage.getItem("tema") || "claro";
   const ESTILO = document.querySelector("link");
-  
+
+  //Configuración del navegador en tema claro
   if (TEMA == "claro") {
     ESTILO.setAttribute("href", "styles2.css");
     document.getElementById("tema").textContent = "Claro";
   } else {
+    //configuración del navegador en tema oscuro
     ESTILO.setAttribute("href", "styles.css");
     document.getElementById("tema").textContent = "Oscuro";
   }
@@ -110,11 +112,14 @@ document.addEventListener("DOMContentLoaded", () => {
   render();
 });
 
+
+// Actualiza el filtro de notas según el hash de la URL
 window.addEventListener("hashchange", () => {
   ESTADO.filtro = obtenerFiltroDesdeHash();
   render();
 });
 
+// Creación de notas
 function crearNota(texto, fecha, prioridad) {
   const T = String(texto).trim();
   const P = Math.max(1, Math.min(3, Number(prioridad) || 1)); // uso de Math y Number
@@ -130,11 +135,13 @@ function crearNota(texto, fecha, prioridad) {
   };
 }
 
+
 function obtenerFiltroDesdeHash() {
   const H = (location.hash || "#todas").toLowerCase();
   return ["#hoy", "#semana", "#todas"].includes(H) ? H : "#todas";
 }
 
+//Filtrar por dia, semana o todo
 function filtrarNotas(notas) {
   const HOY = new Date();
   const YMD = HOY.toISOString().slice(0, 10);
@@ -147,6 +154,7 @@ function filtrarNotas(notas) {
   return notas;
 }
 
+//Ordenar las notas por prioridad de manera descendente
 function ordenarNotas(notas) {
   return [...notas].sort((a, b) =>
     b.prioridad - a.prioridad ||
@@ -155,6 +163,8 @@ function ordenarNotas(notas) {
   );
 }
 
+// Dibuja en pantalla todas las notas filtradas y ordenadas,
+//  mostrando botones para completar, revertir o borrar cada nota
 function render() {
   const CONT = document.getElementById("listaNotas");
   CONT.innerHTML = "";
@@ -191,11 +201,13 @@ function render() {
   CONT.querySelectorAll("button[data-acc]").forEach(btn => btn.addEventListener("click", onAccionNota));
 }
 
+//Formatea la fecha dependiendo del idioma
 function formatearFecha(ymd) {
   const D = new Date(ymd);
   return new Intl.DateTimeFormat(navigator.language || "es-ES", { dateStyle: "medium" }).format(D);
 }
 
+// Gestiona la creación de una nueva nota, la guarda en localStorage y actualiza la lista en pantalla
 function onSubmitNota(e) {
   e.preventDefault();
   const TEXTO = document.getElementById("txtTexto").value;
@@ -234,6 +246,7 @@ function cargarNotas() {
   }
 }
 
+//Gestiona las opciones del boton, borrar, completar y actualiza el LocalStorage
 function onAccionNota(e) {
   const BTN = e.currentTarget;
   const ID = BTN.getAttribute("data-id");
@@ -242,7 +255,10 @@ function onAccionNota(e) {
   if (IDX < 0) return;
   // Para borrar, completar y revertir
   console.log("⚙️ Acción de nota:", ACC, "ID:", ID); // RF8
-  if (ACC === "borrar" && confirm(t("borrar"))) ESTADO.notas.splice(IDX, 1);
+  if (ACC === "borrar" && confirm(t("borrar"))){
+   ESTADO.notas.splice(IDX, 1);
+   //alertar que la nota se ha eliminado
+   alert("Nota borrada correctamente.")}
   if (ACC === "completar") ESTADO.notas[IDX].completada = true;
   if (ACC === "revertir")  ESTADO.notas[IDX].completada = false;
   //Actualizar el local storage
@@ -258,10 +274,12 @@ function abrirPanelDiario() {
   if (!REF) { alert("Pop-up bloqueado. Permita ventanas emergentes."); return; }
   const SNAPSHOT = { tipo: "SNAPSHOT", notas: filtrarNotas(ESTADO.notas) };
   console.log("📤 Enviando snapshot al panel:", SNAPSHOT); // RF10
+   //Nos aseguramos que los datos que se muestren sean los actualizados
   localStorage.setItem("notas",JSON.stringify(ESTADO.notas));
   setTimeout(() => { try { REF.postMessage(SNAPSHOT, "*"); } catch { } }, 400);
 }
 
+// Escucha mensajes de ventanas externas y, si indica BORRADO, elimina la nota correspondiente y actualiza la interfaz
 window.addEventListener("message", (ev) => {
   if (!ev.data || typeof ev.data !== "object") return;
   if (ev.data.tipo === "BORRADO") {
