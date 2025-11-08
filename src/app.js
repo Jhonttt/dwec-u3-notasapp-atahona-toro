@@ -269,8 +269,7 @@ function abrirPanelDiario() {
   setTimeout(() => { try { REF.postMessage(SNAPSHOT, "*"); } catch { } }, 400);
 }
 
-// Escucha mensajes de ventanas externas y, si indica BORRADO, elimina la nota
-//  correspondiente y actualiza la interfaz
+// Escucha mensajes de ventanas externas y, si indica BORRADO, elimina la nota correspondiente y actualiza la interfaz
 window.addEventListener("message", (ev) => {
   if (!ev.data || typeof ev.data !== "object") return;
   if (ev.data.tipo === "BORRADO") {
