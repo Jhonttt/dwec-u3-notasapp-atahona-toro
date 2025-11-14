@@ -25,8 +25,6 @@
     </nav>
   </header>
 
-  <span contenteditable="true">HOLA</span>
-
   <main>
     <section aria-labelledby="formTitle">
       <h2 id="formTitle">Nueva nota</h2>
@@ -35,6 +33,13 @@
         <label><span>Fecha</span> <input id="txtFecha" type="date" required /></label>
         <label><span>Prioridad</span>
           <select id="selPrioridad">
+            <option value="1">Baja</option>
+            <option value="2">Media</option>
+            <option value="3">Alta</option>
+          </select>
+        </label>
+        <label><span>Prioridad</span>
+          <select id="selSnapshot">
             <option value="1">Baja</option>
             <option value="2">Media</option>
             <option value="3">Alta</option>

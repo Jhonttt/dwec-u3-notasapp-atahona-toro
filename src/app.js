@@ -210,9 +210,7 @@ function render() {
   * CONT.querySelectorAll("button[data-acc]").forEach(btn => btn.addEventListener("click", onAccionNota));
   * Hemos creado un solo listener para ambos botones modificando el método onActionNota()
   */
-}
 
-document.getElementById("listaNotas").addEventListener("click", onAccionNota);
   for (const N of VISIBLES) {
     const CARD = document.createElement("article");
     CARD.className = "nota";
@@ -292,6 +290,8 @@ function onSubmitNota(e) {
     ESTADO.notas.push(NOTA);
     // Guardamos las notas en un JSON
     localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
+    guardarSnapshot();
+
     alert("Nota creada");
     render();
   } catch (err) { alert(err.message); }
@@ -342,8 +342,6 @@ function onAccionNota(e) {
     const CARD = BTN.closest("article");
     const TEXT = CARD.querySelector(".text-note");
     const DATE = CARD.querySelector("input[type='date']");
-
-    
     
     if (!TEXT.textContent) return alert("El texto no puede estar vacío.");
     if (TEXT.textContent.length > 200) return alert("El texto no puede contener más de 200 caracteres.");
@@ -357,6 +355,7 @@ function onAccionNota(e) {
   }
   //Actualizar el local storage
   localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
+  guardarSnapshot();
   // Actualizar el contador de notas semanales completadas
   document.getElementById("notas").textContent = contarNotasSemanalesCompletadas();
   render();
@@ -370,6 +369,7 @@ function abrirPanelDiario() {
   console.log("📤 Enviando snapshot al panel:", SNAPSHOT); // RF10
   //Nos aseguramos que los datos que se muestren sean los actualizados
   localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
+  guardarSnapshot();
   setTimeout(() => { try { REF.postMessage(SNAPSHOT, "*"); } catch { } }, 400);
 }
 
@@ -381,6 +381,7 @@ window.addEventListener("message", (ev) => {
     ESTADO.notas = ESTADO.notas.filter(n => n.id !== ID);
     //Es nesario actualizar el local storage
     localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
+    guardarSnapshot();
     render();
   }
 });
@@ -451,4 +452,40 @@ function contarNotasSemanalesCompletadas() {
 
 // Mostrar el contador en el elemento con id "notas"
 document.getElementById("notas").textContent = contarNotasSemanalesCompletadas();
+
+// Snapshots
+function guardarSnapshot() {
+  const maxSnapshots = 5;
+  const prefix = "notasApp:hist:";
+
+  // Obtener todas las claves que son snapshots
+  const keys = Object.keys(localStorage).filter(k => k.startsWith(prefix));
+
+  // Si hay 5 o más snapshots, eliminar la más antigua
+  if (keys.length >= maxSnapshots) {
+    // Ordenar las claves por fecha (timestamp)
+    keys.sort();
+
+    localStorage.removeItem(keys[0]);
+  }
+
+  const fechaActual = new Date().toISOString();
+  localStorage.setItem(prefix + fechaActual, JSON.stringify(ESTADO.notas));
+
+  let anterior = document.querySelector("#formNota label:nth-child(3)");
+  const SNAP = document.createElement("label");
+  SNAP.innerHTML = ''
+  INPUT_FECHA.type = "date";
+  INPUT_FECHA.value = N.fecha;
+  TIME.replaceWith(INPUT_FECHA);
+
+  console.log("Snapshot guardada. Total snapshots:", Object.keys(localStorage).filter(k => k.startsWith(prefix)).length);
+}
+
+console.log(prueba);
+
+
+
+
+
 
