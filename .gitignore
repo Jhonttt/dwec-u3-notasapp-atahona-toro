@@ -1,3 +1,543 @@
 .DS_Store
 Thumbs.db
 *.log
+
+teniendo esto en cuenta:
+// Traducciones para ES y EN
+const TRAD = {
+  es: {
+    crear: "Nota creada",
+    borrar: "¿Borrar la nota?",
+    completada: "Completar",
+    revertir: "Revertir",
+    borrarBtn: "Borrar",
+    titulo: "NotasApp — DWEC U3",
+    nombreWeb: "NotasApp",
+    hoy: "Hoy",
+    semana: "Semana",
+    todas: "Todas",
+    titulo: "Titulo",
+    texto: "Texto",
+    fecha: "Fecha",
+    prioridad: "Prioridad",
+    baja: "Baja",
+    media: "Media",
+    alta: "Alta",
+    aniadir: "Añadir",
+    lista: "Notas",
+    panel: "Abrir Panel Diario",
+    editar: "Editar",
+    confirmar: "Confirmar"
+  },
+  en: {
+    crear: "Note created",
+    borrar: "Delete the note?",
+    completada: "Complete",
+    revertir: "Undo",
+    borrarBtn: "Delete",
+    titulo: "NotesApp — DWEC U3",
+    nombreWeb: "NotesApp",
+    hoy: "Today",
+    semana: "Week",
+    todas: "All",
+    titulo: "Title",
+    texto: "Text",
+    fecha: "Date",
+    prioridad: "Priority",
+    baja: "Low",
+    media: "Medium",
+    alta: "High",
+    aniadir: "Add",
+    lista: "Notes",
+    panel: "Open Daily Panel",
+    editar: "Edit",
+    confirmar: "Confirm"
+  }
+};
+
+//Obtenemos si el lenguaje es ingles (en) o español (es)
+function getLang() {
+  const lang = (navigator.language || "es").slice(0, 2);
+  return TRAD[lang] ? lang : "es";
+}
+
+function t(key) {
+  return TRAD[getLang()][key] || key;
+}
+
+// DWEC U3 — Plantilla mínima NotasApp
+
+/** @typedef {{ id:string, texto:string, fecha:string, prioridad:number, completada?:boolean }} Nota */
+
+const ESTADO = {
+  notas: /** @type {Nota[]} */ ([]),
+  filtro: obtenerFiltroDesdeHash()
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("🚀 Aplicación iniciada. Filtro actual:", ESTADO.filtro); // RF3
+  console.log("🌍 Idioma actual del navegador:", navigator.language); // RF2
+  //Traducimos las palabras dependiendo del idioma seleccionado
+  document.title = t("titulo");
+  document.querySelector("h1").textContent = t("nombreWeb");
+  document.querySelector("button[data-hash='#hoy']").textContent = t("hoy");
+  document.querySelector("button[data-hash='#semana']").textContent = t("semana");
+  document.querySelector("button[data-hash='#todas']").textContent = t("todas");
+  document.querySelector("#formTitle").textContent = t("titulo");
+  document.querySelector("label:first-child span").textContent = t("texto");
+  document.querySelector("label:nth-child(2) span").textContent = t("fecha");
+  document.querySelector("label:nth-child(3) span").textContent = t("prioridad");
+  document.querySelector("option[value='1']").textContent = t("baja");
+  document.querySelector("option[value='2']").textContent = t("media");
+  document.querySelector("option[value='3']").textContent = t("alta");
+  document.querySelector("button[type='submit']").textContent = t("aniadir");
+  document.querySelector("h2#listTitle").textContent = t("lista");
+  document.querySelector("#btnPanelDiario").textContent = t("panel");
+  document.querySelectorAll("nav [data-hash]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      location.hash = btn.getAttribute("data-hash");
+      console.log("🔗 Hash cambiado a:", location.hash); // RF3
+    });
+  });
+  document.getElementById("formNota").addEventListener("submit", onSubmitNota);
+  document.getElementById("btnPanelDiario").addEventListener("click", abrirPanelDiario);
+
+  //Hacemos que persistan los temas
+  //Obtenemos el tema del navegador
+  const TEMA = localStorage.getItem("tema") || "claro";
+  const ESTILO = document.querySelector("link");
+
+  //Configuración del navegador en tema claro
+  if (TEMA == "claro") {
+    ESTILO.setAttribute("href", "styles2.css");
+    document.getElementById("tema").textContent = "Claro";
+  } else {
+    //configuración del navegador en tema oscuro
+    ESTILO.setAttribute("href", "styles.css");
+    document.getElementById("tema").textContent = "Oscuro";
+  }
+  console.log("🎨 Tema cargado desde localStorage:", TEMA); // RF9
+  cargarNotas();
+  render();
+});
+
+
+// Actualiza el filtro de notas según el hash de la URL
+window.addEventListener("hashchange", () => {
+  ESTADO.filtro = obtenerFiltroDesdeHash();
+  render();
+});
+
+// Creación de notas
+function crearNota(texto, fecha, prioridad) {
+  const T = String(texto).trim();
+  const P = Math.max(1, Math.min(3, Number(prioridad) || 1)); // uso de Math y Number
+  const F = new Date(fecha); // uso de Date
+  console.log("📝 Intentando crear nota con:", { texto: T, fecha: F, prioridad: P }); // RF1
+  if (!T || Number.isNaN(F.getTime())) throw new Error("Datos de nota inválidos");
+  return {
+    id: "n" + Math.random().toString(36).slice(2),
+    texto: T,
+    fecha: F.toISOString().slice(0, 10),
+    prioridad: P,
+    completada: false
+  };
+}
+
+
+function obtenerFiltroDesdeHash() {
+  const H = (location.hash || "#todas").toLowerCase();
+  return ["#hoy", "#semana", "#todas"].includes(H) ? H : "#todas";
+}
+
+//Filtrar por dia, semana o todo
+function filtrarNotas(notas) {
+  const HOY = new Date();
+  const YMD = HOY.toISOString().slice(0, 10);
+  if (ESTADO.filtro === "#hoy") return notas.filter(n => n.fecha === YMD);
+  if (ESTADO.filtro === "#semana") {
+    const FIN = new Date(HOY);
+    FIN.setDate(HOY.getDate() + 7);
+    return notas.filter(n => new Date(n.fecha) >= HOY && new Date(n.fecha) <= FIN);
+  }
+  return notas;
+}
+
+//Ordenar las notas por prioridad de manera descendente
+function ordenarNotas(notas) {
+  return [...notas].sort((a, b) =>
+    b.prioridad - a.prioridad ||
+    new Date(a.fecha) - new Date(b.fecha) ||
+    a.texto.localeCompare(b.texto)
+  );
+}
+
+// Dibuja en pantalla todas las notas filtradas y ordenadas,
+//  mostrando botones para completar, revertir o borrar cada nota
+function render() {
+  const CONT = document.getElementById("listaNotas");
+  CONT.innerHTML = "";
+  const VISIBLES = ordenarNotas(filtrarNotas(ESTADO.notas));
+  console.log("🧱 Renderizando", VISIBLES.length, "notas visibles."); // RF4
+  for (const N of VISIBLES) {
+    const CARD = document.createElement("article");
+    CARD.className = "nota";
+    CARD.innerHTML = `
+      <header>
+        <strong>[P${N.prioridad}] <span class="text-note">${escapeHtml(N.texto)}</span></strong>
+        <time datetime="${N.fecha}">${formatearFecha(N.fecha)}</time>
+      </header>
+      <footer>
+        <button data-acc="completar" data-id="${N.id}">${t("completada")}</button>
+        <button data-acc="editar" data-id="${N.id}">${t("editar")}</button>
+        <button data-acc="borrar" data-id="${N.id}">${t("borrarBtn")}</button>
+      </footer>
+    `;
+
+    if (N.completada) {
+      CARD.classList.add("completada");
+      const REVERTIR = CARD.querySelector("footer button[data-acc='completar']");
+      REVERTIR.setAttribute("data-acc", "revertir");
+      REVERTIR.textContent = t("revertir");
+    }
+    
+    if (N.editable) {
+      CARD.classList.add("edit");
+      const CONFIRMAR = CARD.querySelector("footer button[data-acc='editar']");
+      CONFIRMAR.setAttribute("data-acc", "confirmar");
+      CONFIRMAR.textContent = t("confirmar");
+
+      const TEXTO = CARD.querySelector(".text-note");
+      TEXTO.contentEditable = true;
+
+      const TIME = CARD.querySelector("time");
+      const INPUT_FECHA = document.createElement("input");
+      INPUT_FECHA.type = "date";
+      INPUT_FECHA.value = N.fecha;
+      TIME.replaceWith(INPUT_FECHA);
+
+      setTimeout(() => {
+        TEXTO.focus();
+
+        // selecionar la palabra
+        const range = document.createRange();
+        range.selectNodeContents(TEXTO);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }, 0);
+
+      TEXTO.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          CONFIRMAR.click();
+        }
+      });
+    }
+
+    CONT.appendChild(CARD);
+  }
+  CONT.querySelectorAll("button[data-acc]").forEach(btn => btn.addEventListener("click", onAccionNota));
+}
+
+//Formatea la fecha dependiendo del idioma
+function formatearFecha(ymd) {
+  const D = new Date(ymd);
+  return new Intl.DateTimeFormat(navigator.language || "es-ES", { dateStyle: "medium" }).format(D);
+}
+
+// Gestiona la creación de una nueva nota, la guarda en localStorage y actualiza la lista en pantalla
+function onSubmitNota(e) {
+  e.preventDefault();
+  const TEXTO = document.getElementById("txtTexto").value;
+  const FECHA = document.getElementById("txtFecha").value;
+  if (new Date (FECHA) <= new Date(new Date().setHours(0,0,0,0))) return alert("La fecha tiene que ser posterior a hoy");
+  const PRIORIDAD = document.getElementById("selPrioridad").value;
+  try {
+    const NOTA = crearNota(TEXTO, FECHA, PRIORIDAD);
+    ESTADO.notas.push(NOTA);
+    // Guardamos las notas en un JSON
+    localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
+    alert("Nota creada");
+    render();
+  } catch (err) { alert(err.message); }
+}
+
+// Crear metodo para cargar todas las notas en el localStorage
+function cargarNotas() {
+  //Obtenemos el valor de las notas
+  const DATOS = localStorage.getItem("notas");
+
+  //No existen notas guardadas
+  if (!DATOS) return;
+
+  const NOTASGUARDADAS = JSON.parse(DATOS);
+
+  //Recorremos todas las notas para asegurarnos que pasen por Crear Nota
+  for (const N of NOTASGUARDADAS) {
+    ESTADO.notas.push({
+      id: N.id,
+      texto: N.texto,
+      fecha: N.fecha,
+      prioridad: N.prioridad,
+      completada: N.completada || false
+    }
+    );
+  }
+}
+
+//Gestiona las opciones del boton, borrar, completar y actualiza el LocalStorage
+function onAccionNota(e) {
+  const BTN = e.currentTarget;
+  const ID = BTN.getAttribute("data-id");
+  const ACC = BTN.getAttribute("data-acc");
+  const IDX = ESTADO.notas.findIndex(n => n.id === ID);
+  if (IDX < 0) return;
+  // Para borrar, completar y revertir
+  console.log("⚙️ Acción de nota:", ACC, "ID:", ID); // RF8
+  if (ACC === "borrar" && confirm(t("borrar"))) {
+   ESTADO.notas.splice(IDX, 1);
+   //alertar que la nota se ha eliminado
+   alert("Nota borrada correctamente.")
+  }
+  if (ACC === "completar") ESTADO.notas[IDX].completada = true;
+  if (ACC === "revertir") ESTADO.notas[IDX].completada = false;
+  if (ACC === "editar") ESTADO.notas[IDX].editable = true;
+  if (ACC === "confirmar") {
+    const CARD = BTN.closest("article");
+    const TEXT = CARD.querySelector(".text-note");
+    const DATE = CARD.querySelector("input[type='date']");
+
+    
+    
+    if (!TEXT.textContent) return alert("El texto no puede estar vacío.");
+    if (TEXT.textContent.length > 200) return alert("El texto no puede contener más de 200 caracteres.");
+
+    if (!(DATE.value)) return alert("La fecha no puede estar vacía.");
+    if (new Date (DATE.value) <= new Date(new Date().setHours(0,0,0,0))) return alert("La fecha debe ser posterior a hoy.");
+    
+    ESTADO.notas[IDX].editable = false;
+    ESTADO.notas[IDX].texto = TEXT.textContent;
+    ESTADO.notas[IDX].fecha = DATE.value;
+  }
+  //Actualizar el local storage
+  localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
+  // Actualizar el contador de notas semanales completadas
+  document.getElementById("notas").textContent = contarNotasSemanalesCompletadas();
+  render();
+}
+
+function abrirPanelDiario() {
+  console.log("🪟 Abriendo Panel Diario..."); // RF7
+  const REF = window.open("panel.html", "PanelDiario", "width=420,height=560");
+  if (!REF) { alert("Pop-up bloqueado. Permita ventanas emergentes."); return; }
+  const SNAPSHOT = { tipo: "SNAPSHOT", notas: filtrarNotas(ESTADO.notas) };
+  console.log("📤 Enviando snapshot al panel:", SNAPSHOT); // RF10
+   //Nos aseguramos que los datos que se muestren sean los actualizados
+  localStorage.setItem("notas",JSON.stringify(ESTADO.notas));
+  setTimeout(() => { try { REF.postMessage(SNAPSHOT, "*"); } catch { } }, 400);
+}
+
+// Escucha mensajes de ventanas externas y, si indica BORRADO, elimina la nota correspondiente y actualiza la interfaz
+window.addEventListener("message", (ev) => {
+  if (!ev.data || typeof ev.data !== "object") return;
+  if (ev.data.tipo === "BORRADO") {
+    const ID = ev.data.id;
+    ESTADO.notas = ESTADO.notas.filter(n => n.id !== ID);
+    //Es nesario actualizar el local storage
+    localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
+    render();
+  }
+});
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c]));
+}
+
+
+// Cambiar el tema de color
+document.getElementById("tema").addEventListener("click", function (event) {
+  event.preventDefault();
+  let estilos = document.querySelector("link");
+  let enlace = estilos.getAttribute("href");
+  if (enlace == "styles.css") {
+    estilos.setAttribute("href", "styles2.css");
+    document.getElementById("tema").textContent = "Claro";
+    //almacenamos los temas
+    localStorage.setItem("tema", "claro");
+  } else {
+    estilos.setAttribute("href", "styles.css");
+    document.getElementById("tema").textContent = "Oscuro";
+    //almacenamos los temas
+    localStorage.setItem("tema", "oscuro");
+  }
+});
+
+
+// Cambiar el tamaño de la página
+document.querySelectorAll(".tamanio").forEach(tamanio => {
+  tamanio.addEventListener("click", function (event) {
+    event.preventDefault();
+    switch (tamanio.getAttribute("id")) {
+      case "a3":
+        document.querySelector("*").style.fontSize = "1.6em";
+        break;
+      case "a4":
+        document.querySelector("*").style.fontSize = "1.25em";
+        break;
+      case "a5":
+        document.querySelector("*").style.fontSize = "1em";
+        break;
+      default:
+        document.querySelector("*").style.fontSize = "1em";
+        break;
+    }
+  });
+});
+
+// Contador de notas semanales completadas
+function contarNotasSemanalesCompletadas() {
+  const datos = localStorage.getItem("notas");
+  const notas = JSON.parse(datos);
+
+  const hoy = new Date();
+  const finSemana = new Date(hoy);
+  finSemana.setDate(hoy.getDate() + 7);
+  let contador = 0;
+  notas.forEach(nota => {
+    const fechaNota = new Date(nota.fecha);
+    if (nota.completada === true && fechaNota >= hoy && fechaNota <= finSemana) {
+      contador++;
+    }
+  });
+  console.log("📆 Notas completadas esta semana:", contador); // RF1 RF5
+  return contador;
+}
+
+// Mostrar el contador en el elemento con id "notas"
+document.getElementById("notas").textContent = contarNotasSemanalesCompletadas();
+
+
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NotasApp — DWEC U3</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <div class="container-header">
+      <h1>NotasApp</h1>
+      <p>Contador de notas semanales completadas: <span id="notas">0</span></p>
+    </div>
+    <nav aria-label="Filtros">
+      <button data-hash="#hoy">Hoy</button>
+      <button data-hash="#semana">Semana</button>
+      <button data-hash="#todas">Todas</button>
+      <button id="a3" class="tamanio">A3</button>
+      <button id="a4" class="tamanio">A4</button>
+      <button id="a5" class="tamanio">A5</button>
+      <button id="tema">Oscuro</button>
+    </nav>
+  </header>
+
+  <span contenteditable="true">HOLA</span>
+
+  <main>
+    <section aria-labelledby="formTitle">
+      <h2 id="formTitle">Nueva nota</h2>
+      <form id="formNota">
+        <label><span>Texto</span> <input id="txtTexto" required maxlength="200" /></label>
+        <label><span>Fecha</span> <input id="txtFecha" type="date" required /></label>
+        <label><span>Prioridad</span>
+          <select id="selPrioridad">
+            <option value="1">Baja</option>
+            <option value="2">Media</option>
+            <option value="3">Alta</option>
+          </select>
+        </label>
+        <button type="submit">Añadir</button>
+      </form>
+    </section>
+
+    <section aria-labelledby="listTitle">
+      <h2 id="listTitle">Notas</h2>
+      <div id="listaNotas" role="list" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer>
+    <button id="btnPanelDiario">Abrir Panel Diario</button>
+  </footer>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
+
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Panel Diario — NotasApp</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 1rem; line-height: 1.5; }
+    header, footer { padding-bottom: .5rem; border-bottom: 1px solid #eee; margin-bottom: .75rem; }
+    .nota { border: 1px solid #ddd; border-radius: 8px; padding: .5rem; margin-bottom: .5rem; }
+    .nota header { display:flex; justify-content: space-between; }
+    .vacio { opacity: .7; font-style: italic; }
+    button { padding:.4rem .6rem; border:1px solid #ccc; border-radius:8px; background:#fff; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Panel Diario</h1>
+    <p>Notas de hoy.</p>
+  </header>
+  <main id="contenedor"><p class="vacio">Esperando datos…</p></main>
+  <footer><small>© DWEC — U3</small></footer>
+
+  <script>
+    const cont = document.getElementById('contenedor');
+    window.addEventListener('message', (ev)=>{
+      if (!ev.data || ev.data.tipo !== 'SNAPSHOT') return;
+      render(filtrarHoy(ev.data.notas));
+    });
+    function render(notas) {
+      cont.innerHTML = '';
+      if (!notas || !notas.length) { cont.innerHTML = '<p class="vacio">No hay notas para hoy.</p>'; return; }
+      for (const n of notas) {
+        const art = document.createElement('article');
+        art.className = 'nota';
+        art.innerHTML = '<header><strong>[P'+n.prioridad+'] '+escapeHtml(n.texto)+'</strong>'
+                      + '<time datetime="'+n.fecha+'">'+formatDate(n.fecha)+'</time></header>'
+                      + '<footer><button data-id="'+n.id+'">Borrar</button></footer>';
+        cont.appendChild(art);
+      }
+      cont.querySelectorAll('button[data-id]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const id = btn.getAttribute('data-id');
+          if (window.opener) window.opener.postMessage({ tipo:'BORRADO', id }, '*');
+          btn.closest('.nota').remove();
+        });
+      });
+    }
+    function filtrarHoy(notas) {
+      const hoy = new Date().toISOString().slice(0,10);
+      return (notas||[]).filter(n=>n.fecha===hoy);
+    }
+    function formatDate(ymd) {
+      const d = new Date(ymd);
+      try { return new Intl.DateTimeFormat(navigator.language||'es-ES',{ dateStyle:'medium'}).format(d); }
+      catch { return d.toLocaleDateString(); }
+    }
+    function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
+  </script>
+</body>
+</html>
+
+
+
+mejorame tanto el styles.css (claro) como el styles2.css (oscuro), para que cuando en la caja de notas aumente el tamaño se ajuste y lo que consideres

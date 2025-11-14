@@ -20,7 +20,9 @@ const TRAD = {
     alta: "Alta",
     aniadir: "Añadir",
     lista: "Notas",
-    panel: "Abrir Panel Diario"
+    panel: "Abrir Panel Diario",
+    editar: "Editar",
+    confirmar: "Confirmar"
   },
   en: {
     crear: "Note created",
@@ -42,7 +44,9 @@ const TRAD = {
     alta: "High",
     aniadir: "Add",
     lista: "Notes",
-    panel: "Open Daily Panel"
+    panel: "Open Daily Panel",
+    editar: "Edit",
+    confirmar: "Confirm"
   }
 };
 
@@ -209,6 +213,66 @@ function render() {
 }
 
 document.getElementById("listaNotas").addEventListener("click", onAccionNota);
+  for (const N of VISIBLES) {
+    const CARD = document.createElement("article");
+    CARD.className = "nota";
+    CARD.innerHTML = `
+      <header>
+        <strong>[P${N.prioridad}] <span class="text-note">${escapeHtml(N.texto)}</span></strong>
+        <time datetime="${N.fecha}">${formatearFecha(N.fecha)}</time>
+      </header>
+      <footer>
+        <button data-acc="completar" data-id="${N.id}">${t("completada")}</button>
+        <button data-acc="editar" data-id="${N.id}">${t("editar")}</button>
+        <button data-acc="borrar" data-id="${N.id}">${t("borrarBtn")}</button>
+      </footer>
+    `;
+
+    if (N.completada) {
+      CARD.classList.add("completada");
+      const REVERTIR = CARD.querySelector("footer button[data-acc='completar']");
+      REVERTIR.setAttribute("data-acc", "revertir");
+      REVERTIR.textContent = t("revertir");
+    }
+    
+    if (N.editable) {
+      CARD.classList.add("edit");
+      const CONFIRMAR = CARD.querySelector("footer button[data-acc='editar']");
+      CONFIRMAR.setAttribute("data-acc", "confirmar");
+      CONFIRMAR.textContent = t("confirmar");
+
+      const TEXTO = CARD.querySelector(".text-note");
+      TEXTO.contentEditable = true;
+
+      const TIME = CARD.querySelector("time");
+      const INPUT_FECHA = document.createElement("input");
+      INPUT_FECHA.type = "date";
+      INPUT_FECHA.value = N.fecha;
+      TIME.replaceWith(INPUT_FECHA);
+
+      setTimeout(() => {
+        TEXTO.focus();
+
+        // selecionar la palabra
+        const range = document.createRange();
+        range.selectNodeContents(TEXTO);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }, 0);
+
+      TEXTO.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          CONFIRMAR.click();
+        }
+      });
+    }
+
+    CONT.appendChild(CARD);
+  }
+  CONT.querySelectorAll("button[data-acc]").forEach(btn => btn.addEventListener("click", onAccionNota));
+}
 
 //Formatea la fecha dependiendo del idioma
 function formatearFecha(ymd) {
@@ -221,6 +285,7 @@ function onSubmitNota(e) {
   e.preventDefault();
   const TEXTO = document.getElementById("txtTexto").value;
   const FECHA = document.getElementById("txtFecha").value;
+  if (new Date (FECHA) <= new Date(new Date().setHours(0,0,0,0))) return alert("La fecha tiene que ser posterior a hoy");
   const PRIORIDAD = document.getElementById("selPrioridad").value;
   try {
     const NOTA = crearNota(TEXTO, FECHA, PRIORIDAD);
@@ -266,12 +331,30 @@ function onAccionNota(e) {
   // Para borrar, completar y revertir
   console.log("⚙️ Acción de nota:", ACC, "ID:", ID); // RF8
   if (ACC === "borrar" && confirm(t("borrar"))) {
-    ESTADO.notas.splice(IDX, 1);
-    //alertar que la nota se ha eliminado
-    alert("Nota borrada correctamente.")
+   ESTADO.notas.splice(IDX, 1);
+   //alertar que la nota se ha eliminado
+   alert("Nota borrada correctamente.")
   }
   if (ACC === "completar") ESTADO.notas[IDX].completada = true;
   if (ACC === "revertir") ESTADO.notas[IDX].completada = false;
+  if (ACC === "editar") ESTADO.notas[IDX].editable = true;
+  if (ACC === "confirmar") {
+    const CARD = BTN.closest("article");
+    const TEXT = CARD.querySelector(".text-note");
+    const DATE = CARD.querySelector("input[type='date']");
+
+    
+    
+    if (!TEXT.textContent) return alert("El texto no puede estar vacío.");
+    if (TEXT.textContent.length > 200) return alert("El texto no puede contener más de 200 caracteres.");
+
+    if (!(DATE.value)) return alert("La fecha no puede estar vacía.");
+    if (new Date (DATE.value) <= new Date(new Date().setHours(0,0,0,0))) return alert("La fecha debe ser posterior a hoy.");
+    
+    ESTADO.notas[IDX].editable = false;
+    ESTADO.notas[IDX].texto = TEXT.textContent;
+    ESTADO.notas[IDX].fecha = DATE.value;
+  }
   //Actualizar el local storage
   localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
   // Actualizar el contador de notas semanales completadas
@@ -368,3 +451,4 @@ function contarNotasSemanalesCompletadas() {
 
 // Mostrar el contador en el elemento con id "notas"
 document.getElementById("notas").textContent = contarNotasSemanalesCompletadas();
+
