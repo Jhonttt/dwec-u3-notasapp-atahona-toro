@@ -65,6 +65,31 @@ const ESTADO = {
   filtro: obtenerFiltroDesdeHash()
 };
 
+// Crear plantilla reutilizable para notas
+function crearNotaDOM(nota) {
+  const TPL = document.getElementById("tplNota");
+  const NODE = TPL.content.firstElementChild.cloneNode(true);
+  NODE.dataset.id = nota.id;
+  NODE.querySelector(".texto").textContent = nota.texto;
+  NODE.querySelector(".fecha").textContent = nota.fecha;
+
+  //Añadir el boton de añadir y revertir segun el estado del botón
+  const BTN = document.createElement("button");
+  BTN.dataset.acc = nota.completada ? "revertir" : "completar";
+  BTN.dataset.id = nota.id;
+  BTN.textContent = nota.completada ? t("revertir") : t("completada");
+  NODE.appendChild(BTN);
+  
+  const BORRAR =NODE.querySelector("button[data-acc='borrar']");
+  BORRAR.dataset.id=nota.id;
+  BORRAR.before(BTN);
+
+  if(nota.completada)NODE.classList.add("completada");
+  
+  return NODE;
+}
+
+
 document.addEventListener("DOMContentLoaded", () => {
   console.log("🚀 Aplicación iniciada. Filtro actual:", ESTADO.filtro); // RF3
   console.log("🌍 Idioma actual del navegador:", navigator.language); // RF2
@@ -170,36 +195,20 @@ function render() {
   CONT.innerHTML = "";
   const VISIBLES = ordenarNotas(filtrarNotas(ESTADO.notas));
   console.log("🧱 Renderizando", VISIBLES.length, "notas visibles."); // RF4
-  for (const N of VISIBLES) {
-    const CARD = document.createElement("article");
-    CARD.className = "nota";
-    if (N.completada) {
-      CARD.classList.add("completada");
-      CARD.innerHTML = `
-      <header>
-        <strong>[P${N.prioridad}] ${escapeHtml(N.texto)}</strong>
-        <time datetime="${N.fecha}">${formatearFecha(N.fecha)}</time>
-      </header>
-      <footer>
-        <button data-acc="revertir" data-id="${N.id}">${t("revertir")}</button>
-        <button data-acc="borrar" data-id="${N.id}">${t("borrarBtn")}</button>
-      </footer>`;
-    } else {
-      CARD.innerHTML = `
-      <header>
-        <strong>[P${N.prioridad}] ${escapeHtml(N.texto)}</strong>
-        <time datetime="${N.fecha}">${formatearFecha(N.fecha)}</time>
-      </header>
-      <footer>
-        <button data-acc="completar" data-id="${N.id}">${t("completada")}</button>
-        <button data-acc="borrar" data-id="${N.id}">${t("borrarBtn")}</button>
-      </footer>
-    `;
-    }
-    CONT.appendChild(CARD);
-  }
-  CONT.querySelectorAll("button[data-acc]").forEach(btn => btn.addEventListener("click", onAccionNota));
+
+  // Crear una constante FRAGMEN con llamada al la función crearNotaDOM(), para poder utilizar la plantilla
+  const FRAGMENT = document.createDocumentFragment();
+  ESTADO.notas.forEach(nota => FRAGMENT.appendChild(crearNotaDOM(nota)));
+  document.getElementById("listaNotas").appendChild(FRAGMENT);
+
+  /*
+  * En esta linea se agregaban un listener para cada una es decir 2 en total 
+  * CONT.querySelectorAll("button[data-acc]").forEach(btn => btn.addEventListener("click", onAccionNota));
+  * Hemos creado un solo listener para ambos botones modificando el método onActionNota()
+  */
 }
+
+document.getElementById("listaNotas").addEventListener("click", onAccionNota);
 
 //Formatea la fecha dependiendo del idioma
 function formatearFecha(ymd) {
@@ -248,19 +257,21 @@ function cargarNotas() {
 
 //Gestiona las opciones del boton, borrar, completar y actualiza el LocalStorage
 function onAccionNota(e) {
-  const BTN = e.currentTarget;
+  //Detecta cual fue el boton clickeado con data-acc para manejar la acciones de la nota (Delegación de Eventos)
+  const BTN = e.target.closest("button[data-acc]");
   const ID = BTN.getAttribute("data-id");
   const ACC = BTN.getAttribute("data-acc");
   const IDX = ESTADO.notas.findIndex(n => n.id === ID);
   if (IDX < 0) return;
   // Para borrar, completar y revertir
   console.log("⚙️ Acción de nota:", ACC, "ID:", ID); // RF8
-  if (ACC === "borrar" && confirm(t("borrar"))){
-   ESTADO.notas.splice(IDX, 1);
-   //alertar que la nota se ha eliminado
-   alert("Nota borrada correctamente.")}
+  if (ACC === "borrar" && confirm(t("borrar"))) {
+    ESTADO.notas.splice(IDX, 1);
+    //alertar que la nota se ha eliminado
+    alert("Nota borrada correctamente.")
+  }
   if (ACC === "completar") ESTADO.notas[IDX].completada = true;
-  if (ACC === "revertir")  ESTADO.notas[IDX].completada = false;
+  if (ACC === "revertir") ESTADO.notas[IDX].completada = false;
   //Actualizar el local storage
   localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
   // Actualizar el contador de notas semanales completadas
@@ -274,8 +285,8 @@ function abrirPanelDiario() {
   if (!REF) { alert("Pop-up bloqueado. Permita ventanas emergentes."); return; }
   const SNAPSHOT = { tipo: "SNAPSHOT", notas: filtrarNotas(ESTADO.notas) };
   console.log("📤 Enviando snapshot al panel:", SNAPSHOT); // RF10
-   //Nos aseguramos que los datos que se muestren sean los actualizados
-  localStorage.setItem("notas",JSON.stringify(ESTADO.notas));
+  //Nos aseguramos que los datos que se muestren sean los actualizados
+  localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
   setTimeout(() => { try { REF.postMessage(SNAPSHOT, "*"); } catch { } }, 400);
 }
 
@@ -300,7 +311,7 @@ function escapeHtml(s) {
 document.getElementById("tema").addEventListener("click", function (event) {
   event.preventDefault();
   let estilos = document.querySelector("link");
-  let enlace = estilos.getAttribute("href");
+  let enlace = estilos.getAttribute("href"); 
   if (enlace == "styles.css") {
     estilos.setAttribute("href", "styles2.css");
     document.getElementById("tema").textContent = "Claro";

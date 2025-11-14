@@ -1,11 +1,13 @@
 <!doctype html>
 <html lang="es">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>NotasApp — DWEC U3</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
   <header>
     <div class="container-header">
@@ -36,6 +38,7 @@
             <option value="3">Alta</option>
           </select>
         </label>
+
         <button type="submit">Añadir</button>
       </form>
     </section>
@@ -50,6 +53,19 @@
     <button id="btnPanelDiario">Abrir Panel Diario</button>
   </footer>
 
+  <template id="tplNota">
+    <article class="nota">
+      <header>
+        <strong class="texto"></strong>
+        <time class="fecha"></time>
+      </header>
+      <footer>
+        <button data-acc="borrar">Borrar</button>
+      </footer>
+    </article>
+  </template>
+
   <script src="app.js" defer></script>
 </body>
+
 </html>
