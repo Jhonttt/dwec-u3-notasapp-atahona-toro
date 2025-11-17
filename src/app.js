@@ -74,22 +74,76 @@ function crearNotaDOM(nota) {
   const TPL = document.getElementById("tplNota");
   const NODE = TPL.content.firstElementChild.cloneNode(true);
   NODE.dataset.id = nota.id;
-  NODE.querySelector(".texto").textContent = nota.texto;
-  NODE.querySelector(".fecha").textContent = nota.fecha;
+  //Texto y fecha
+  const TEXTO = NODE.querySelector(".texto");
+  TEXTO.textContent = nota.texto;
+  const TIME = NODE.querySelector(".fecha");
+  TIME.textContent = formatearFecha(nota.fecha);
+  TIME.setAttribute("datetime", nota.fecha);
 
   //Añadir el boton de añadir y revertir segun el estado del botón
-  const BTN = document.createElement("button");
-  BTN.dataset.acc = nota.completada ? "revertir" : "completar";
-  BTN.dataset.id = nota.id;
-  BTN.textContent = nota.completada ? t("revertir") : t("completada");
-  NODE.appendChild(BTN);
-  
-  const BORRAR =NODE.querySelector("button[data-acc='borrar']");
-  BORRAR.dataset.id=nota.id;
-  BORRAR.before(BTN);
+  const BTN_C = document.createElement("button");
+  BTN_C.dataset.acc = nota.completada ? "revertir" : "completar";
+  BTN_C.dataset.id = nota.id;
+  BTN_C.textContent = nota.completada ? t("revertir") : t("completada");
+  NODE.appendChild(BTN_C);
 
-  if(nota.completada)NODE.classList.add("completada");
-  
+  const BTN_B = NODE.querySelector("button[data-acc='borrar']");
+  BTN_B.dataset.id = nota.id;
+  // Poner los botones en linea
+  BTN_B.before(BTN_C);
+
+  if (nota.completada) NODE.classList.add("completada");
+
+  // Añadir boton de editar
+  if (nota.editable) {
+    NODE.classList.add("edit");
+
+    const BTN_E = document.createElement("button");
+    // Define la acción del botón como "confirmar" para identificarla al hacer click
+    BTN_E.dataset.acc = "confirmar";
+    // Asocia el botón con el id de la nota correspondiente
+    BTN_E.dataset.id = nota.id;
+    BTN_E.textContent = t("confirmar");
+    BTN_B.before(BTN_E);
+
+    //Texto Editable
+    TEXTO.classList.add("text-note");
+    TEXTO.contentEditable = true;
+
+    // Remplazar <time> por <input type="date">
+    const INPUT_FECHA = document.createElement("input");
+    INPUT_FECHA.type = "date";
+    INPUT_FECHA.value = nota.fecha;
+    TIME.replaceWith(INPUT_FECHA);
+
+    //Auto focus y seleccionar texto
+    setTimeout(() => {
+      TEXTO.focus();
+      // selecionar la palabra
+      const range = document.createRange();
+      range.selectNodeContents(TEXTO);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }, 0
+    );
+    TEXTO.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        BTN_E.click();
+      }
+    });
+  } else if(!nota.editable){
+    const BTN_E = document.createElement("button");
+    // Define la acción del botón como "confirmar" para identificarla al hacer click
+    BTN_E.dataset.acc = "editar";
+    // Asocia el botón con el id de la nota correspondiente
+    BTN_E.dataset.id = nota.id;
+    BTN_E.textContent = t("editar");
+    BTN_B.before(BTN_E);
+
+  }
   return NODE;
 }
 
@@ -121,6 +175,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   document.getElementById("formNota").addEventListener("submit", onSubmitNota);
   document.getElementById("btnPanelDiario").addEventListener("click", abrirPanelDiario);
+  // Delegación de eventos para todos los botones dentro de la lista de notas
+  document.getElementById("listaNotas").addEventListener("click", onAccionNota);
 
   //Hacemos que persistan los temas
   //Obtenemos el tema del navegador
@@ -137,6 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("tema").textContent = "Oscuro";
   }
   console.log("🎨 Tema cargado desde localStorage:", TEMA); // RF9
+
   cargarNotas();
   render();
 });
@@ -160,7 +217,8 @@ function crearNota(texto, fecha, prioridad) {
     texto: T,
     fecha: F.toISOString().slice(0, 10),
     prioridad: P,
-    completada: false
+    completada: false,
+    editable:false
   };
 }
 
@@ -283,7 +341,7 @@ function onSubmitNota(e) {
   e.preventDefault();
   const TEXTO = document.getElementById("txtTexto").value;
   const FECHA = document.getElementById("txtFecha").value;
-  if (new Date (FECHA) <= new Date(new Date().setHours(0,0,0,0))) return alert("La fecha tiene que ser posterior a hoy");
+  if (new Date(FECHA) <= new Date(new Date().setHours(0, 0, 0, 0))) return alert("La fecha tiene que ser posterior a hoy");
   const PRIORIDAD = document.getElementById("selPrioridad").value;
   try {
     const NOTA = crearNota(TEXTO, FECHA, PRIORIDAD);
@@ -331,9 +389,9 @@ function onAccionNota(e) {
   // Para borrar, completar y revertir
   console.log("⚙️ Acción de nota:", ACC, "ID:", ID); // RF8
   if (ACC === "borrar" && confirm(t("borrar"))) {
-   ESTADO.notas.splice(IDX, 1);
-   //alertar que la nota se ha eliminado
-   alert("Nota borrada correctamente.")
+    ESTADO.notas.splice(IDX, 1);
+    //alertar que la nota se ha eliminado
+    alert("Nota borrada correctamente.")
   }
   if (ACC === "completar") ESTADO.notas[IDX].completada = true;
   if (ACC === "revertir") ESTADO.notas[IDX].completada = false;
@@ -347,8 +405,8 @@ function onAccionNota(e) {
     if (TEXT.textContent.length > 200) return alert("El texto no puede contener más de 200 caracteres.");
 
     if (!(DATE.value)) return alert("La fecha no puede estar vacía.");
-    if (new Date (DATE.value) <= new Date(new Date().setHours(0,0,0,0))) return alert("La fecha debe ser posterior a hoy.");
-    
+    if (new Date(DATE.value) <= new Date(new Date().setHours(0, 0, 0, 0))) return alert("La fecha debe ser posterior a hoy.");
+
     ESTADO.notas[IDX].editable = false;
     ESTADO.notas[IDX].texto = TEXT.textContent;
     ESTADO.notas[IDX].fecha = DATE.value;
@@ -395,7 +453,7 @@ function escapeHtml(s) {
 document.getElementById("tema").addEventListener("click", function (event) {
   event.preventDefault();
   let estilos = document.querySelector("link");
-  let enlace = estilos.getAttribute("href"); 
+  let enlace = estilos.getAttribute("href");
   if (enlace == "styles.css") {
     estilos.setAttribute("href", "styles2.css");
     document.getElementById("tema").textContent = "Claro";
@@ -408,7 +466,6 @@ document.getElementById("tema").addEventListener("click", function (event) {
     localStorage.setItem("tema", "oscuro");
   }
 });
-
 
 // Cambiar el tamaño de la página
 document.querySelectorAll(".tamanio").forEach(tamanio => {
