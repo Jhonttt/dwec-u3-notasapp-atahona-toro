@@ -203,6 +203,10 @@ button[type="submit"]:hover {
   background: var(--accent-700);
 }
 
+button{
+  margin-left: 8px;
+}
+
 label span {
   display: block;
   color: var(--text-muted);

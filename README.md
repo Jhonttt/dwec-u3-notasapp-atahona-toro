@@ -25,4 +25,7 @@
 Agregar más funcionalides al darle al boton completar para que se ponga el borde en verde, cambiar el botón de completar a revertir, y si se vuelve a pulsar se pone normal, hacer una función donde se traduzca la página detectando el idioma del navegador (solo funciona con inglés), sino por defecto está español, agregar el botón de claro/oscuro que cambia entre un archivo css a otro, y también lo mismo con a3, a4 y A5,para aumentar el tamaño de letra del navegador.En el caso de la persistencia se ha creado una función para cargar las notas al localStorage, permitiendo que perista incluso cuando se recargue el navegador, es importante destacar que dicha funcionalidad tambien se ha dado a los temas, y al panel, se han implementado formas de dobre escribirlo y es importante hacer el llamado de la función antes del render. Nos hemos ayudado de la plataforma de documentación de MDN para comprender el uso de algunas funciones, formato y como utilizarlo, además , también hemos acudido a Chat GPT, para consultar algunas cuestiones técnicas, o errores de lógica, para mejorar el funcionamiento del programa
  
 
+## Uso de IA
+
+
 © 2025-10-27 — DWEC
