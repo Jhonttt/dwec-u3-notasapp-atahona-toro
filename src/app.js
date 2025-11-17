@@ -195,6 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("🎨 Tema cargado desde localStorage:", TEMA); // RF9
   cargarNotas();
   render();
+  cargarSnapshots();
 });
 
 
@@ -254,13 +255,12 @@ function ordenarNotas(notas) {
 function render() {
   const CONT = document.getElementById("listaNotas");
   CONT.innerHTML = "";
-  const VISIBLES = ordenarNotas(filtrarNotas(ESTADO.notas));
-  console.log("🧱 Renderizando", VISIBLES.length, "notas visibles."); // RF4
-
+  
   // Crear una constante FRAGMEN con llamada al la función crearNotaDOM(), para poder utilizar la plantilla
   const FRAGMENT = document.createDocumentFragment();
   ESTADO.notas.forEach(nota => FRAGMENT.appendChild(crearNotaDOM(nota)));
   document.getElementById("listaNotas").appendChild(FRAGMENT);
+  // console.log("🧱 Renderizando", ESTADO.notas.length, "notas visibles."); // RF4
 
   /*
   * En esta linea se agregaban un listener para cada una es decir 2 en total 
@@ -287,7 +287,7 @@ function onSubmitNota(e) {
     ESTADO.notas.push(NOTA);
     // Guardamos las notas en un JSON
     localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
-    // guardarSnapshot();
+    guardarSnapshot();
 
     alert("Nota creada");
     render();
@@ -353,7 +353,7 @@ function onAccionNota(e) {
   }
   //Actualizar el local storage
   localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
-  // guardarSnapshot();
+  guardarSnapshot();
   // Actualizar el contador de notas semanales completadas
   document.getElementById("notas").textContent = contarNotasSemanalesCompletadas();
   render();
@@ -367,7 +367,6 @@ function abrirPanelDiario() {
   console.log("📤 Enviando snapshot al panel:", SNAPSHOT); // RF10
   //Nos aseguramos que los datos que se muestren sean los actualizados
   localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
-  // guardarSnapshot();
   setTimeout(() => { try { REF.postMessage(SNAPSHOT, "*"); } catch { } }, 400);
 }
 
@@ -379,7 +378,6 @@ window.addEventListener("message", (ev) => {
     ESTADO.notas = ESTADO.notas.filter(n => n.id !== ID);
     //Es nesario actualizar el local storage
     localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
-    // guardarSnapshot();
     render();
   }
 });
@@ -451,31 +449,114 @@ function contarNotasSemanalesCompletadas() {
 // Mostrar el contador en el elemento con id "notas"
 document.getElementById("notas").textContent = contarNotasSemanalesCompletadas();
 
+function guardarSnapshot() {
+  const maxSnapshots = 5;
+  const prefix = "notasApp:hist:";
+
+  // Obtener snapshots existentes
+  const keys = Object.keys(localStorage).filter(k => k.startsWith(prefix));
+
+  // Borrar la más antigua si ya hay 5
+  if (keys.length >= maxSnapshots) {
+    keys.sort();
+    localStorage.removeItem(keys[0]);
+  }
+
+  // Guardar nueva snapshot
+  const fechaActual = new Date().toISOString();
+  localStorage.setItem(prefix + fechaActual, JSON.stringify(ESTADO.notas));
+
+  // Asegurar que el UI exista
+  insertarSnapshots();
+
+  // Actualizar lista de snapshots
+  const select = document.getElementById("selSnapshot");
+  select.innerHTML = "";
+
+  const nuevasKeys = Object.keys(localStorage)
+    .filter(k => k.startsWith(prefix))
+    .sort()
+    .reverse(); // más recientes primero
+
+  nuevasKeys.forEach(k => {
+    const fecha = k.replace(prefix, "");
+    const op = document.createElement("option");
+    op.value = k;
+    op.textContent = new Date(fecha).toLocaleString();
+    select.appendChild(op);
+  });
+
+  console.log("Snapshot guardada.");
+}
+
 // Snapshots
-// function guardarSnapshot() {
-//   const maxSnapshots = 5;
-//   const prefix = "notasApp:hist:";
+function insertarSnapshots() {
+    // Ver si ya existe
+    if (document.getElementById("snapContainer")) return;
 
-//   // Obtener todas las claves que son snapshots
-//   const keys = Object.keys(localStorage).filter(k => k.startsWith(prefix));
+    const btnSubmit = document.querySelector("#formNota button[type='submit']");
 
-//   // Si hay 5 o más snapshots, eliminar la más antigua
-//   if (keys.length >= maxSnapshots) {
-//     // Ordenar las claves por fecha (timestamp)
-//     keys.sort();
+    // Crear contenedor
+    const cont = document.createElement("div");
+    cont.id = "snapContainer";
 
-//     localStorage.removeItem(keys[0]);
-//   }
+    cont.innerHTML = `
+        <label>
+            <span>Snapshots</span>
+            <select id="selSnapshot"></select>
+        </label>
 
-//   const fechaActual = new Date().toISOString();
-//   localStorage.setItem(prefix + fechaActual, JSON.stringify(ESTADO.notas));
+        <button id="btnRecuperarSnap" type="button">Recuperar</button>
+    `;
 
-//   let anterior = document.querySelector("#formNota label:nth-child(3)");
-//   const SNAP = document.createElement("label");
-//   SNAP.innerHTML = ''
-//   INPUT_FECHA.type = "date";
-//   INPUT_FECHA.value = N.fecha;
-//   TIME.replaceWith(INPUT_FECHA);
+    // Insertarlo justo después del botón submit
+    btnSubmit.after(cont);
 
-//   console.log("Snapshot guardada. Total snapshots:", Object.keys(localStorage).filter(k => k.startsWith(prefix)).length);
-// }
+    // Listener del botón recuperar
+    document.getElementById("btnRecuperarSnap").addEventListener("click", recuperarSnapshot);
+}
+
+function recuperarSnapshot() {
+    const select = document.getElementById("selSnapshot");
+    const key = select.value;
+
+    if (!key) return alert("No hay snapshot seleccionada.");
+
+    const datos = localStorage.getItem(key);
+    if (!datos) return alert("Error al cargar snapshot.");
+
+    const notas = JSON.parse(datos);
+
+    // Restaurar estado
+    ESTADO.notas = notas;
+
+    // Guardar como estado actual
+    localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
+
+    alert("Snapshot recuperada correctamente.");
+
+    render();
+}
+
+function cargarSnapshots() {
+  const prefix = "notasApp:hist:";
+
+  // Asegurar que existe el contenedor
+  insertarSnapshots();
+
+  const select = document.getElementById("selSnapshot");
+  select.innerHTML = "";
+
+  const keys = Object.keys(localStorage)
+    .filter(k => k.startsWith(prefix))
+    .sort()
+    .reverse(); // más nuevas primero
+
+  keys.forEach(k => {
+    const fecha = k.replace(prefix, "");
+    const op = document.createElement("option");
+    op.value = k;
+    op.textContent = new Date(fecha).toLocaleString();
+    select.appendChild(op);
+  });
+}

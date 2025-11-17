@@ -180,7 +180,8 @@ main {
 /* Inputs y formularios */
 input,
 select,
-button[type="submit"] {
+button[type="submit"],
+button[type="button"] {
   font-family: var(--font);
   padding: 0.5rem;
   border: 1px solid var(--border);
@@ -192,13 +193,14 @@ input:focus,
 select:focus {
   outline: 3px solid rgba(11, 116, 255, 0.08);
 }
-button[type="submit"] {
+button[type="submit"], button[type="button"] {
   background: var(--accent);
   color: #fff;
   cursor: pointer;
   border: none;
   padding: 0.55rem 0.9rem;
 }
+button[type="submit"]:hover,
 button[type="submit"]:hover {
   background: var(--accent-700);
 }
