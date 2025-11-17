@@ -193,7 +193,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("tema").textContent = "Oscuro";
   }
   console.log("🎨 Tema cargado desde localStorage:", TEMA); // RF9
-
   cargarNotas();
   render();
 });
@@ -218,7 +217,7 @@ function crearNota(texto, fecha, prioridad) {
     fecha: F.toISOString().slice(0, 10),
     prioridad: P,
     completada: false,
-    editable:false
+    editable: false
   };
 }
 
@@ -268,66 +267,6 @@ function render() {
   * CONT.querySelectorAll("button[data-acc]").forEach(btn => btn.addEventListener("click", onAccionNota));
   * Hemos creado un solo listener para ambos botones modificando el método onActionNota()
   */
-
-  for (const N of VISIBLES) {
-    const CARD = document.createElement("article");
-    CARD.className = "nota";
-    CARD.innerHTML = `
-      <header>
-        <strong>[P${N.prioridad}] <span class="text-note">${escapeHtml(N.texto)}</span></strong>
-        <time datetime="${N.fecha}">${formatearFecha(N.fecha)}</time>
-      </header>
-      <footer>
-        <button data-acc="completar" data-id="${N.id}">${t("completada")}</button>
-        <button data-acc="editar" data-id="${N.id}">${t("editar")}</button>
-        <button data-acc="borrar" data-id="${N.id}">${t("borrarBtn")}</button>
-      </footer>
-    `;
-
-    if (N.completada) {
-      CARD.classList.add("completada");
-      const REVERTIR = CARD.querySelector("footer button[data-acc='completar']");
-      REVERTIR.setAttribute("data-acc", "revertir");
-      REVERTIR.textContent = t("revertir");
-    }
-    
-    if (N.editable) {
-      CARD.classList.add("edit");
-      const CONFIRMAR = CARD.querySelector("footer button[data-acc='editar']");
-      CONFIRMAR.setAttribute("data-acc", "confirmar");
-      CONFIRMAR.textContent = t("confirmar");
-
-      const TEXTO = CARD.querySelector(".text-note");
-      TEXTO.contentEditable = true;
-
-      const TIME = CARD.querySelector("time");
-      const INPUT_FECHA = document.createElement("input");
-      INPUT_FECHA.type = "date";
-      INPUT_FECHA.value = N.fecha;
-      TIME.replaceWith(INPUT_FECHA);
-
-      setTimeout(() => {
-        TEXTO.focus();
-
-        // selecionar la palabra
-        const range = document.createRange();
-        range.selectNodeContents(TEXTO);
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
-      }, 0);
-
-      TEXTO.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          CONFIRMAR.click();
-        }
-      });
-    }
-
-    CONT.appendChild(CARD);
-  }
-  CONT.querySelectorAll("button[data-acc]").forEach(btn => btn.addEventListener("click", onAccionNota));
 }
 
 //Formatea la fecha dependiendo del idioma
@@ -341,14 +280,14 @@ function onSubmitNota(e) {
   e.preventDefault();
   const TEXTO = document.getElementById("txtTexto").value;
   const FECHA = document.getElementById("txtFecha").value;
-  if (new Date(FECHA) <= new Date(new Date().setHours(0, 0, 0, 0))) return alert("La fecha tiene que ser posterior a hoy");
+  if (new Date (FECHA) <= new Date(new Date().setHours(0,0,0,0))) return alert("La fecha tiene que ser posterior a hoy");
   const PRIORIDAD = document.getElementById("selPrioridad").value;
   try {
     const NOTA = crearNota(TEXTO, FECHA, PRIORIDAD);
     ESTADO.notas.push(NOTA);
     // Guardamos las notas en un JSON
     localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
-    guardarSnapshot();
+    // guardarSnapshot();
 
     alert("Nota creada");
     render();
@@ -372,7 +311,8 @@ function cargarNotas() {
       texto: N.texto,
       fecha: N.fecha,
       prioridad: N.prioridad,
-      completada: N.completada || false
+      completada: N.completada || false,
+      editable: N.editable || false
     }
     );
   }
@@ -389,9 +329,9 @@ function onAccionNota(e) {
   // Para borrar, completar y revertir
   console.log("⚙️ Acción de nota:", ACC, "ID:", ID); // RF8
   if (ACC === "borrar" && confirm(t("borrar"))) {
-    ESTADO.notas.splice(IDX, 1);
-    //alertar que la nota se ha eliminado
-    alert("Nota borrada correctamente.")
+   ESTADO.notas.splice(IDX, 1);
+   //alertar que la nota se ha eliminado
+   alert("Nota borrada correctamente.")
   }
   if (ACC === "completar") ESTADO.notas[IDX].completada = true;
   if (ACC === "revertir") ESTADO.notas[IDX].completada = false;
@@ -405,15 +345,15 @@ function onAccionNota(e) {
     if (TEXT.textContent.length > 200) return alert("El texto no puede contener más de 200 caracteres.");
 
     if (!(DATE.value)) return alert("La fecha no puede estar vacía.");
-    if (new Date(DATE.value) <= new Date(new Date().setHours(0, 0, 0, 0))) return alert("La fecha debe ser posterior a hoy.");
-
+    if (new Date (DATE.value) <= new Date(new Date().setHours(0,0,0,0))) return alert("La fecha debe ser posterior a hoy.");
+    
     ESTADO.notas[IDX].editable = false;
     ESTADO.notas[IDX].texto = TEXT.textContent;
     ESTADO.notas[IDX].fecha = DATE.value;
   }
   //Actualizar el local storage
   localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
-  guardarSnapshot();
+  // guardarSnapshot();
   // Actualizar el contador de notas semanales completadas
   document.getElementById("notas").textContent = contarNotasSemanalesCompletadas();
   render();
@@ -427,7 +367,7 @@ function abrirPanelDiario() {
   console.log("📤 Enviando snapshot al panel:", SNAPSHOT); // RF10
   //Nos aseguramos que los datos que se muestren sean los actualizados
   localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
-  guardarSnapshot();
+  // guardarSnapshot();
   setTimeout(() => { try { REF.postMessage(SNAPSHOT, "*"); } catch { } }, 400);
 }
 
@@ -439,7 +379,7 @@ window.addEventListener("message", (ev) => {
     ESTADO.notas = ESTADO.notas.filter(n => n.id !== ID);
     //Es nesario actualizar el local storage
     localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
-    guardarSnapshot();
+    // guardarSnapshot();
     render();
   }
 });
@@ -453,7 +393,7 @@ function escapeHtml(s) {
 document.getElementById("tema").addEventListener("click", function (event) {
   event.preventDefault();
   let estilos = document.querySelector("link");
-  let enlace = estilos.getAttribute("href");
+  let enlace = estilos.getAttribute("href"); 
   if (enlace == "styles.css") {
     estilos.setAttribute("href", "styles2.css");
     document.getElementById("tema").textContent = "Claro";
@@ -466,6 +406,7 @@ document.getElementById("tema").addEventListener("click", function (event) {
     localStorage.setItem("tema", "oscuro");
   }
 });
+
 
 // Cambiar el tamaño de la página
 document.querySelectorAll(".tamanio").forEach(tamanio => {
@@ -511,38 +452,30 @@ function contarNotasSemanalesCompletadas() {
 document.getElementById("notas").textContent = contarNotasSemanalesCompletadas();
 
 // Snapshots
-function guardarSnapshot() {
-  const maxSnapshots = 5;
-  const prefix = "notasApp:hist:";
+// function guardarSnapshot() {
+//   const maxSnapshots = 5;
+//   const prefix = "notasApp:hist:";
 
-  // Obtener todas las claves que son snapshots
-  const keys = Object.keys(localStorage).filter(k => k.startsWith(prefix));
+//   // Obtener todas las claves que son snapshots
+//   const keys = Object.keys(localStorage).filter(k => k.startsWith(prefix));
 
-  // Si hay 5 o más snapshots, eliminar la más antigua
-  if (keys.length >= maxSnapshots) {
-    // Ordenar las claves por fecha (timestamp)
-    keys.sort();
+//   // Si hay 5 o más snapshots, eliminar la más antigua
+//   if (keys.length >= maxSnapshots) {
+//     // Ordenar las claves por fecha (timestamp)
+//     keys.sort();
 
-    localStorage.removeItem(keys[0]);
-  }
+//     localStorage.removeItem(keys[0]);
+//   }
 
-  const fechaActual = new Date().toISOString();
-  localStorage.setItem(prefix + fechaActual, JSON.stringify(ESTADO.notas));
+//   const fechaActual = new Date().toISOString();
+//   localStorage.setItem(prefix + fechaActual, JSON.stringify(ESTADO.notas));
 
-  let anterior = document.querySelector("#formNota label:nth-child(3)");
-  const SNAP = document.createElement("label");
-  SNAP.innerHTML = ''
-  INPUT_FECHA.type = "date";
-  INPUT_FECHA.value = N.fecha;
-  TIME.replaceWith(INPUT_FECHA);
+//   let anterior = document.querySelector("#formNota label:nth-child(3)");
+//   const SNAP = document.createElement("label");
+//   SNAP.innerHTML = ''
+//   INPUT_FECHA.type = "date";
+//   INPUT_FECHA.value = N.fecha;
+//   TIME.replaceWith(INPUT_FECHA);
 
-  console.log("Snapshot guardada. Total snapshots:", Object.keys(localStorage).filter(k => k.startsWith(prefix)).length);
-}
-
-console.log(prueba);
-
-
-
-
-
-
+//   console.log("Snapshot guardada. Total snapshots:", Object.keys(localStorage).filter(k => k.startsWith(prefix)).length);
+// }
