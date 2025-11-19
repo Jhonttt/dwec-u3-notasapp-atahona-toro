@@ -22,10 +22,22 @@
 - Depuración y documentación → Mensajes de error con `Try-Catch` y fomateo de datos para evitar inconsistencias, además de comentatios JSDoc.
 
 ## Decisiones Claves y ayuda
-Agregar más funcionalides al darle al boton completar para que se ponga el borde en verde, cambiar el botón de completar a revertir, y si se vuelve a pulsar se pone normal, hacer una función donde se traduzca la página detectando el idioma del navegador (solo funciona con inglés), sino por defecto está español, agregar el botón de claro/oscuro que cambia entre un archivo css a otro, y también lo mismo con a3, a4 y A5,para aumentar el tamaño de letra del navegador.En el caso de la persistencia se ha creado una función para cargar las notas al localStorage, permitiendo que perista incluso cuando se recargue el navegador, es importante destacar que dicha funcionalidad tambien se ha dado a los temas, y al panel, se han implementado formas de dobre escribirlo y es importante hacer el llamado de la función antes del render. Nos hemos ayudado de la plataforma de documentación de MDN para comprender el uso de algunas funciones, formato y como utilizarlo, además , también hemos acudido a Chat GPT, para consultar algunas cuestiones técnicas, o errores de lógica, para mejorar el funcionamiento del programa
- 
+- Agregar más funcionalides al darle al boton completar para que se ponga el borde en verde.
+- Cambiar el botón de completar a revertir, y si se vuelve a pulsar se pone normal.
+- Hacer una función donde se traduzca la página detectando el idioma del navegador (solo funciona en inglés), sino por defecto está en español
+- Agregar el botón de claro/oscuro que cambia entre un archivo css a otro, y también lo mismo con A3, A4 y A5, para aumentar el tamaño de letra del navegador.
 
-## Uso de IA
+- En el caso de la persistencia se ha creado una función para cargar las notas al localStorage, permitiendo que perista incluso cuando se recargue el navegador, es importante destacar que dicha funcionalidad tambien se ha dado a los temas, y al panel, se han implementado formas de sobreescribirlo y es importante hacer el llamado de la función antes del render.
 
+- Nos hemos ayudado de la plataforma de documentación de MDN para comprender el uso de algunas funciones, formato y como utilizarlo, además, también hemos acudido a Chat GPT4, para consultar algunas cuestiones técnicas, o errores de lógica, para mejorar el funcionamiento del programa.
+
+- Hemos realizado una plantilla para cada una de las notas con la etiqueta `<template>` para generar dinámicamente 
+las notas, lo que nos permite crea una estructura de HTML más limpia y fácil de mantener, reduciendo errores y manteniendo la legibilidad, evitando la duplicación de código.
+
+- Adicional a todo lo mencionado anteriormente, hemos optado por realizar una delegación de códigos para los botones en lugar de asignar listeners individuales a cada botón, esto mejora considerablemente el rendimiento y reduce el consumo de memoria, sobre todo en funciones como crear o modificar alguna nota.
+
+- Para prevenir alguna acción equivoca, o de otro tipo, hemos definido un almacenimiento de versiones que va a permitir al ususario restaurar una versión pasada de la app, su funcionamiento se basa en limitar el número de versiones (Snapshoots) a 5, para luego sacar todas las que se hayan guardado, si es mayor o igual a 5 eliminamos la versión mas antigua, las ordenamos con `sort`, luego utilizamos un `removeItem(keys[0])` para eliminar la version más antigua, siendo keys todas las snapshoots guardadas además luego se añaden las nuevas versioens al principio de un `<select>` definido dentro de un contenedor `<div>` que contiene un `<label>` para nombrar snapshoots junto a un `<select>` que contiene opciones `<option>`.
+
+- Para recuperar cada una de las snapshoot recogemos el valor `value` de dicha snapshoot y como trabajamos con keys, recuperamos dicha key, restaurando el estado la nota. Y actualizando el localStorage principal `<localStorage.setItem("notasApp:data, JSON.stringify(ESTADO.notas)")>`. 
 
 © 2025-10-27 — DWEC

@@ -41,7 +41,7 @@
 ## ✔️ Persistencia de Datos (Cookies o Web Storage)
 
 - [✅] Uso **localStorage** o **Cookies** (uno elegido y justificado).
-- [ ] Recupero datos correctamente al cargar la página.
+- [✅] Recupero datos correctamente al cargar la página.
 - [✅] Guardo los cambios inmediatamente al:
   - Crear nota
   - Editar nota
@@ -71,7 +71,7 @@
 
 
 ## ✔️ Verificación Final
-- [ ] Todas las funcionalidades probadas.
+- [✅] Todas las funcionalidades probadas.
 - [✅] No hay errores en consola.
 - [✅] Todas las validaciones funcionan.
 - [✅] La interfaz es usable en escritorio y móvil.

@@ -74,7 +74,12 @@ function crearNotaDOM(nota) {
   const TPL = document.getElementById("tplNota");
   const NODE = TPL.content.firstElementChild.cloneNode(true);
   NODE.dataset.id = nota.id;
-  //Texto y fecha
+  //Prioridad
+  const PRI = NODE.querySelector(".pri");
+  PRI.textContent=" [P"+nota.prioridad+"] ";
+  PRI.style.diplay="inline-block";
+  PRI.style.marginRight="10px";
+  //Texto y fecha 
   const TEXTO = NODE.querySelector(".texto");
   TEXTO.textContent = nota.texto;
   const TIME = NODE.querySelector(".fecha");
@@ -134,7 +139,7 @@ function crearNotaDOM(nota) {
         BTN_E.click();
       }
     });
-  } else if(!nota.editable){
+  } else if (!nota.editable) {
     const BTN_E = document.createElement("button");
     // Define la acción del botón como "confirmar" para identificarla al hacer click
     BTN_E.dataset.acc = "editar";
@@ -255,7 +260,7 @@ function ordenarNotas(notas) {
 function render() {
   const CONT = document.getElementById("listaNotas");
   CONT.innerHTML = "";
-  
+
   // Crear una constante FRAGMEN con llamada al la función crearNotaDOM(), para poder utilizar la plantilla
   const FRAGMENT = document.createDocumentFragment();
   ESTADO.notas.forEach(nota => FRAGMENT.appendChild(crearNotaDOM(nota)));
@@ -280,13 +285,13 @@ function onSubmitNota(e) {
   e.preventDefault();
   const TEXTO = document.getElementById("txtTexto").value;
   const FECHA = document.getElementById("txtFecha").value;
-  if (new Date (FECHA) <= new Date(new Date().setHours(0,0,0,0))) return alert("La fecha tiene que ser posterior a hoy");
+  if (new Date(FECHA) <= new Date(new Date().setHours(0, 0, 0, 0))) return alert("La fecha tiene que ser posterior a hoy");
   const PRIORIDAD = document.getElementById("selPrioridad").value;
   try {
     const NOTA = crearNota(TEXTO, FECHA, PRIORIDAD);
     ESTADO.notas.push(NOTA);
     // Guardamos las notas en un JSON
-    localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
+    localStorage.setItem("notasApp:data", JSON.stringify(ESTADO.notas));
     guardarSnapshot();
 
     alert("Nota creada");
@@ -297,7 +302,7 @@ function onSubmitNota(e) {
 // Crear metodo para cargar todas las notas en el localStorage
 function cargarNotas() {
   //Obtenemos el valor de las notas
-  const DATOS = localStorage.getItem("notas");
+  const DATOS = localStorage.getItem("notasApp:data");
 
   //No existen notas guardadas
   if (!DATOS) return;
@@ -329,9 +334,9 @@ function onAccionNota(e) {
   // Para borrar, completar y revertir
   console.log("⚙️ Acción de nota:", ACC, "ID:", ID); // RF8
   if (ACC === "borrar" && confirm(t("borrar"))) {
-   ESTADO.notas.splice(IDX, 1);
-   //alertar que la nota se ha eliminado
-   alert("Nota borrada correctamente.")
+    ESTADO.notas.splice(IDX, 1);
+    //alertar que la nota se ha eliminado
+    alert("Nota borrada correctamente.")
   }
   if (ACC === "completar") ESTADO.notas[IDX].completada = true;
   if (ACC === "revertir") ESTADO.notas[IDX].completada = false;
@@ -340,19 +345,19 @@ function onAccionNota(e) {
     const CARD = BTN.closest("article");
     const TEXT = CARD.querySelector(".text-note");
     const DATE = CARD.querySelector("input[type='date']");
-    
+
     if (!TEXT.textContent) return alert("El texto no puede estar vacío.");
     if (TEXT.textContent.length > 200) return alert("El texto no puede contener más de 200 caracteres.");
 
     if (!(DATE.value)) return alert("La fecha no puede estar vacía.");
-    if (new Date (DATE.value) <= new Date(new Date().setHours(0,0,0,0))) return alert("La fecha debe ser posterior a hoy.");
-    
+    if (new Date(DATE.value) <= new Date(new Date().setHours(0, 0, 0, 0))) return alert("La fecha debe ser posterior a hoy.");
+
     ESTADO.notas[IDX].editable = false;
     ESTADO.notas[IDX].texto = TEXT.textContent;
     ESTADO.notas[IDX].fecha = DATE.value;
   }
   //Actualizar el local storage
-  localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
+  localStorage.setItem("notasApp:data", JSON.stringify(ESTADO.notas));
   guardarSnapshot();
   // Actualizar el contador de notas semanales completadas
   document.getElementById("notas").textContent = contarNotasSemanalesCompletadas();
@@ -366,7 +371,7 @@ function abrirPanelDiario() {
   const SNAPSHOT = { tipo: "SNAPSHOT", notas: filtrarNotas(ESTADO.notas) };
   console.log("📤 Enviando snapshot al panel:", SNAPSHOT); // RF10
   //Nos aseguramos que los datos que se muestren sean los actualizados
-  localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
+  localStorage.setItem("notasApp:data", JSON.stringify(ESTADO.notas));
   setTimeout(() => { try { REF.postMessage(SNAPSHOT, "*"); } catch { } }, 400);
 }
 
@@ -377,7 +382,7 @@ window.addEventListener("message", (ev) => {
     const ID = ev.data.id;
     ESTADO.notas = ESTADO.notas.filter(n => n.id !== ID);
     //Es nesario actualizar el local storage
-    localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
+    localStorage.setItem("notasApp:data", JSON.stringify(ESTADO.notas));
     render();
   }
 });
@@ -391,7 +396,7 @@ function escapeHtml(s) {
 document.getElementById("tema").addEventListener("click", function (event) {
   event.preventDefault();
   let estilos = document.querySelector("link");
-  let enlace = estilos.getAttribute("href"); 
+  let enlace = estilos.getAttribute("href");
   if (enlace == "styles.css") {
     estilos.setAttribute("href", "styles2.css");
     document.getElementById("tema").textContent = "Claro";
@@ -429,7 +434,7 @@ document.querySelectorAll(".tamanio").forEach(tamanio => {
 
 // Contador de notas semanales completadas
 function contarNotasSemanalesCompletadas() {
-  const datos = localStorage.getItem("notas");
+  const datos = localStorage.getItem("notasApp:data");
   const notas = JSON.parse(datos);
 
   const hoy = new Date();
@@ -491,16 +496,16 @@ function guardarSnapshot() {
 
 // Snapshots
 function insertarSnapshots() {
-    // Ver si ya existe
-    if (document.getElementById("snapContainer")) return;
+  // Ver si ya existe
+  if (document.getElementById("snapContainer")) return;
 
-    const btnSubmit = document.querySelector("#formNota button[type='submit']");
+  const btnSubmit = document.querySelector("#formNota button[type='submit']");
 
-    // Crear contenedor
-    const cont = document.createElement("div");
-    cont.id = "snapContainer";
+  // Crear contenedor
+  const cont = document.createElement("div");
+  cont.id = "snapContainer";
 
-    cont.innerHTML = `
+  cont.innerHTML = `
         <label>
             <span>Snapshots</span>
             <select id="selSnapshot"></select>
@@ -509,33 +514,33 @@ function insertarSnapshots() {
         <button id="btnRecuperarSnap" type="button">Recuperar</button>
     `;
 
-    // Insertarlo justo después del botón submit
-    btnSubmit.after(cont);
+  // Insertarlo justo después del botón submit
+  btnSubmit.after(cont);
 
-    // Listener del botón recuperar
-    document.getElementById("btnRecuperarSnap").addEventListener("click", recuperarSnapshot);
+  // Listener del botón recuperar
+  document.getElementById("btnRecuperarSnap").addEventListener("click", recuperarSnapshot);
 }
 
 function recuperarSnapshot() {
-    const select = document.getElementById("selSnapshot");
-    const key = select.value;
+  const select = document.getElementById("selSnapshot");
+  const key = select.value;
 
-    if (!key) return alert("No hay snapshot seleccionada.");
+  if (!key) return alert("No hay snapshot seleccionada.");
 
-    const datos = localStorage.getItem(key);
-    if (!datos) return alert("Error al cargar snapshot.");
+  const datos = localStorage.getItem(key);
+  if (!datos) return alert("Error al cargar snapshot.");
 
-    const notas = JSON.parse(datos);
+  const notas = JSON.parse(datos);
 
-    // Restaurar estado
-    ESTADO.notas = notas;
+  // Restaurar estado
+  ESTADO.notas = notas;
 
-    // Guardar como estado actual
-    localStorage.setItem("notas", JSON.stringify(ESTADO.notas));
+  // Guardar como estado actual
+  localStorage.setItem("notasApp:data", JSON.stringify(ESTADO.notas));
 
-    alert("Snapshot recuperada correctamente.");
+  alert("Snapshot recuperada correctamente.");
 
-    render();
+  render();
 }
 
 function cargarSnapshots() {
