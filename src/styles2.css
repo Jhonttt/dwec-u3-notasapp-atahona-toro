@@ -6,10 +6,13 @@
   --text: #e6eef8;
   --text-muted: #9aa7b9;
   --accent: #60a5fa;
-  --accent-700: #3b82c6;
-  --border: #111418;
+  --accent-700: #3b82f6;
+  --border: #1a1f24;
   --success: #16a34a;
-  --card-shadow: 0 8px 24px rgba(2, 6, 23, 0.6);
+  --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+  --prioridad-1: #00ff0050;
+  --prioridad-2: #fbff0050;
+  --prioridad-3: #ff000050;
 }
 
 * {
@@ -28,19 +31,25 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* ---------------- HEADER & FOOTER ---------------- */
+
 header,
 footer {
   padding: 1rem;
+
+  /* antes era blanco opaco → equivalent dark: tonalidad azul suave 2% */
   background: linear-gradient(
     0deg,
-    rgba(255, 255, 255, 0.02),
-    rgba(255, 255, 255, 0.02)
+    rgba(255, 255, 255, 0.015),
+    rgba(255, 255, 255, 0.015)
   );
   border-bottom: 1px solid var(--border);
 }
 footer {
   border-top: 1px solid var(--border);
 }
+
+/* ---------------- CONTAINER HEADER ---------------- */
 
 .container-header {
   display: flex;
@@ -50,10 +59,12 @@ footer {
   margin-bottom: 1rem;
   padding: 0.6rem 1rem;
   border-radius: 10px;
+
+  /* Equivalente al azul claro del modo claro */
   background: linear-gradient(
     90deg,
-    rgba(96, 165, 250, 0.04),
-    rgba(96, 165, 250, 0.02)
+    rgba(96, 165, 250, 0.06),
+    rgba(96, 165, 250, 0.03)
   );
 }
 .container-header h1 {
@@ -69,21 +80,29 @@ footer {
   gap: 0.6rem;
 }
 
-/* Contador estilo badge (oscuro) */
+/* ---------------- BADGE NOTAS (equivalente) ---------------- */
+
 #notas {
   display: inline-block;
   min-width: 2.2rem;
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
+
+  /* equivalente al color plano del modo claro, pero versión dark */
   background: linear-gradient(180deg, var(--accent), var(--accent-700));
   color: #021025;
+
   font-weight: 700;
   text-align: center;
-  box-shadow: 0 6px 18px rgba(3, 7, 18, 0.6);
+
+  /* sombra equivalente pero oscura */
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
-/* Navigation */
+/* ---------------- NAVIGATION ---------------- */
+
 nav {
   display: flex;
   flex-wrap: wrap;
@@ -91,12 +110,13 @@ nav {
   align-items: center;
 }
 nav button {
-  background: transparent;
-  color: var(--text);
+  background: var(--bg-light);
+  color: var(--accent);
   border: 1px solid var(--border);
   padding: 0.5rem 0.85rem;
   border-radius: 8px;
   cursor: pointer;
+
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 nav button:hover {
@@ -110,6 +130,8 @@ nav button.active {
   border-color: var(--accent-700);
 }
 
+/* ---------------- LISTA DE NOTAS ---------------- */
+
 main {
   padding: 1rem;
 }
@@ -119,6 +141,7 @@ main {
   gap: 0.85rem;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
 }
+
 .nota {
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -126,17 +149,22 @@ main {
   background: var(--bg-light);
   color: var(--text);
   box-shadow: var(--card-shadow);
+
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 .nota:hover {
   transform: translateY(-4px);
-  box-shadow: 0 14px 40px rgba(2, 6, 23, 0.65);
+  /* equivalente al shadow claro, pero adaptado */
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.65);
 }
+
 .nota header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
+/* ---------------- ESTADOS COMPLETADA & EDIT ---------------- */
 
 .completada {
   background: linear-gradient(
@@ -146,24 +174,40 @@ main {
   );
   border-left: 4px solid var(--success);
 }
+
 .edit {
   background: linear-gradient(
     180deg,
-    rgba(22, 163, 144, 0.14),
-    rgba(22, 163, 163, 0.06)
+    rgba(96, 165, 250, 0.15),
+    rgba(96, 165, 250, 0.07)
   );
   border-right: 4px solid var(--accent);
 }
+
 .completada.edit,
 .edit.completada {
   background: linear-gradient(
     90deg,
     rgba(22, 163, 74, 0.2),
-    rgba(22, 163, 163, 0.2)
+    rgba(96, 165, 250, 0.2)
   );
 }
 
-/* Inputs y formularios */
+.pri1 {
+  border-top: 4px solid var(--prioridad-1);
+  border-bottom: 4px solid var(--prioridad-1);
+}
+.pri2 {
+  border-top: 4px solid var(--prioridad-2);
+  border-bottom: 4px solid var(--prioridad-2);
+}
+.pri3 {
+  border-top: 4px solid var(--prioridad-3);
+  border-bottom: 4px solid var(--prioridad-3);
+}
+
+/* ---------------- INPUTS & FORMULARIOS ---------------- */
+
 input,
 select,
 button[type="submit"],
@@ -175,10 +219,12 @@ button[type="button"] {
   background: #0f1316;
   color: var(--text);
 }
+
 input:focus,
 select:focus {
-  outline: 3px solid rgba(96, 165, 250, 0.06);
+  outline: 3px solid rgba(96, 165, 250, 0.12);
 }
+
 button[type="submit"],
 button[type="button"] {
   background: var(--accent);
@@ -192,13 +238,18 @@ button[type="button"]:hover {
   background: var(--accent-700);
 }
 
+button{
+  margin-left: 8px;
+}
+
+/* ---------------- VARIOS ---------------- */
+
 label span {
   display: block;
   color: var(--text-muted);
   margin-bottom: 0.25rem;
 }
 
-/* Control visual para tamaños */
 .tamanio {
   background: transparent;
   border: 1px dashed var(--border);
@@ -222,18 +273,117 @@ label span {
   }
 }
 
-/* animación opcional para destacar el contador cuando su valor cambia (se puede activar vía JS agregando .pulse) */
+/* animación */
 @keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.08);
-  }
-  100% {
-    transform: scale(1);
-  }
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
 }
 .pulse {
   animation: pulse 0.35s ease;
+}
+
+
+/* ---------------------------------------------------------
+   🎨 Estilos individuales para cada tipo de botón (data-acc)
+   (Versión Modo Oscuro)
+----------------------------------------------------------*/
+
+button[data-acc] {
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 0.45rem 0.7rem;
+  border: none;
+  transition: 0.2s ease;
+  margin-left: 6px;
+  color: #f0f4f8;
+}
+
+/* COMPLETAR (verde) */
+button[data-acc="completar"] {
+  background: #16a34a;
+  box-shadow: 0 3px 6px rgba(22, 163, 74, 0.25);
+}
+button[data-acc="completar"]:hover {
+  background: #15803d;
+}
+
+/* REVERTIR (naranja) */
+button[data-acc="revertir"] {
+  background: #f97316;
+  box-shadow: 0 3px 6px rgba(249, 115, 22, 0.25);
+}
+button[data-acc="revertir"]:hover {
+  background: #ea580c;
+}
+
+/* BORRAR (rojo intenso) */
+button[data-acc="borrar"] {
+  background: #dc2626;
+  box-shadow: 0 3px 6px rgba(220, 38, 38, 0.25);
+}
+button[data-acc="borrar"]:hover {
+  background: #b91c1c;
+}
+
+/* EDITAR (azul brillante) */
+button[data-acc="editar"] {
+  background: #2563eb;
+  box-shadow: 0 3px 6px rgba(37, 99, 235, 0.25);
+}
+button[data-acc="editar"]:hover {
+  background: #1d4ed8;
+}
+
+/* CONFIRMAR (morado neón) */
+button[data-acc="confirmar"] {
+  background: #9333ea;
+  box-shadow: 0 3px 6px rgba(147, 51, 234, 0.25);
+}
+button[data-acc="confirmar"]:hover {
+  background: #7e22ce;
+}
+
+/* ---------------------------------------------------------
+   📘 BOTÓN "Abrir Panel Diario" (modo oscuro)
+   Estilo turquesa neón elegante
+----------------------------------------------------------*/
+
+#btnPanelDiario {
+  background: linear-gradient(135deg, #0d9488, #06b6d4);
+  color: #e6faff;
+  font-weight: 700;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(6, 182, 212, 0.35);
+  transition: 0.22s ease;
+}
+
+#btnPanelDiario:hover {
+  background: linear-gradient(135deg, #0891b2, #0e7490);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(14, 116, 144, 0.38);
+}
+
+#btnPanelDiario:active {
+  transform: scale(0.96);
+}
+
+/* ---------------------------------------------------------
+   BUTTON SNAPSHOT (modo oscuro)
+----------------------------------------------------------*/
+
+#btnRecuperarSnap {
+  background: #475569;
+  color: #e4e8f0;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 0.45rem 0.7rem;
+  transition: 0.2s ease;
+  box-shadow: 0 3px 6px rgba(71, 85, 105, 0.25);
+}
+
+#btnRecuperarSnap:hover {
+  background: #334155;
 }

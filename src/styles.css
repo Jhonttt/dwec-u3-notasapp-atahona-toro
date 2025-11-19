@@ -10,9 +10,12 @@
   --border: #e6e9ed;
   --success: #16a34a;
   --card-shadow: 0 6px 18px rgba(12, 20, 30, 0.06);
+  --prioridad-1: #00ff0050;
+  --prioridad-2: #fbff0050;
+  --prioridad-3: #ff000050;
 }
 
-.dark {
+/* .dark {
   --bg: #0b0f12;
   --bg-light: #111316;
   --text: #e6eef8;
@@ -21,7 +24,7 @@
   --accent-700: #3b82c6;
   --border: #111418;
   --card-shadow: 0 8px 24px rgba(2, 6, 23, 0.6);
-}
+} */
 
 * {
   box-sizing: border-box;
@@ -177,6 +180,19 @@ main {
   );
 }
 
+.pri1 {
+  border-top: 4px solid var(--prioridad-1);
+  border-bottom: 4px solid var(--prioridad-1);
+}
+.pri2 {
+  border-top: 4px solid var(--prioridad-2);
+  border-bottom: 4px solid var(--prioridad-2);
+}
+.pri3 {
+  border-top: 4px solid var(--prioridad-3);
+  border-bottom: 4px solid var(--prioridad-3);
+}
+
 /* Inputs y formularios */
 input,
 select,
@@ -254,4 +270,109 @@ label span {
 }
 .pulse {
   animation: pulse 0.35s ease;
+}
+
+/* ---------------------------------------------------------
+   🎨 Estilos individuales para cada tipo de botón (data-acc)
+----------------------------------------------------------*/
+
+button[data-acc] {
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 0.45rem 0.7rem;
+  border: none;
+  transition: 0.2s ease;
+  margin-left: 6px;
+}
+
+/* COMPLETAR (verde) */
+button[data-acc="completar"] {
+  background: #16a34a;
+  color: #fff;
+  box-shadow: 0 3px 6px rgba(22, 163, 74, 0.3);
+}
+button[data-acc="completar"]:hover {
+  background: #15803d;
+}
+
+/* REVERTIR (naranja) */
+button[data-acc="revertir"] {
+  background: #f97316;
+  color: white;
+  box-shadow: 0 3px 6px rgba(249, 115, 22, 0.3);
+}
+button[data-acc="revertir"]:hover {
+  background: #ea580c;
+}
+
+/* BORRAR (rojo intenso) */
+button[data-acc="borrar"] {
+  background: #dc2626;
+  color: #fff;
+  box-shadow: 0 3px 6px rgba(220, 38, 38, 0.3);
+}
+button[data-acc="borrar"]:hover {
+  background: #b91c1c;
+}
+
+/* EDITAR (azul) */
+button[data-acc="editar"] {
+  background: #2563eb;
+  color: #fff;
+  box-shadow: 0 3px 6px rgba(37, 99, 235, 0.3);
+}
+button[data-acc="editar"]:hover {
+  background: #1d4ed8;
+}
+
+/* CONFIRMAR (morado) */
+button[data-acc="confirmar"] {
+  background: #9333ea;
+  color: #fff;
+  box-shadow: 0 3px 6px rgba(147, 51, 234, 0.3);
+}
+button[data-acc="confirmar"]:hover {
+  background: #7e22ce;
+}
+
+/* ---------------------------------------------------------
+   🟦 BOTÓN "Abrir Panel Diario" — estilo especial
+----------------------------------------------------------*/
+
+#btnPanelDiario {
+  background: linear-gradient(135deg, #2dd4bf, #14b8a6);
+  color: #ffffff;
+  font-weight: 700;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(20, 184, 166, 0.32);
+  transition: 0.22s ease;
+}
+
+#btnPanelDiario:hover {
+  background: linear-gradient(135deg, #14b8a6, #0d9488);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(13, 148, 136, 0.35);
+}
+
+#btnPanelDiario:active {
+  transform: scale(0.96);
+}
+
+/* ---------------------------------------------------------
+   Botón Snapshots (recuperar)
+----------------------------------------------------------*/
+
+#btnRecuperarSnap {
+  background: #64748b;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 3px 6px rgba(100, 116, 139, 0.3);
+  border-radius: 6px;
+  padding: 0.45rem 0.7rem;
+  transition: 0.2s ease;
+}
+#btnRecuperarSnap:hover {
+  background: #475569;
 }

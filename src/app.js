@@ -22,7 +22,7 @@ const TRAD = {
     lista: "Notas",
     panel: "Abrir Panel Diario",
     editar: "Editar",
-    confirmar: "Confirmar"
+    confirmar: "Confirmar",
   },
   en: {
     crear: "Note created",
@@ -46,8 +46,8 @@ const TRAD = {
     lista: "Notes",
     panel: "Open Daily Panel",
     editar: "Edit",
-    confirmar: "Confirm"
-  }
+    confirmar: "Confirm",
+  },
 };
 
 //Obtenemos si el lenguaje es ingles (en) o español (es)
@@ -66,7 +66,7 @@ function t(key) {
 
 const ESTADO = {
   notas: /** @type {Nota[]} */ ([]),
-  filtro: obtenerFiltroDesdeHash()
+  filtro: obtenerFiltroDesdeHash(),
 };
 
 // Crear plantilla reutilizable para notas
@@ -76,10 +76,30 @@ function crearNotaDOM(nota) {
   NODE.dataset.id = nota.id;
   //Prioridad
   const PRI = NODE.querySelector(".pri");
+<<<<<<< Updated upstream
   PRI.textContent = " [P" + nota.prioridad + "] ";
   PRI.style.diplay = "inline-block";
   PRI.style.marginRight = "10px";
   //Texto y fecha 
+=======
+  PRI.textContent = "[P" + nota.prioridad + "]";
+  PRI.style.diplay = "inline-block";
+  PRI.style.marginRight = "10px";
+  switch (nota.prioridad) {
+    case 1:
+      NODE.classList.add("pri1");
+      break;
+    case 2:
+      NODE.classList.add("pri2");
+      break;
+    case 3:
+      NODE.classList.add("pri3");
+      break;
+    default:
+      break;
+  }
+  //Texto y fecha
+>>>>>>> Stashed changes
   const TEXTO = NODE.querySelector(".texto");
   TEXTO.textContent = nota.texto;
   const TIME = NODE.querySelector(".fecha");
@@ -131,8 +151,7 @@ function crearNotaDOM(nota) {
       const sel = window.getSelection();
       sel.removeAllRanges();
       sel.addRange(range);
-    }, 0
-    );
+    }, 0);
     TEXTO.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         event.preventDefault();
@@ -147,11 +166,9 @@ function crearNotaDOM(nota) {
     BTN_E.dataset.id = nota.id;
     BTN_E.textContent = t("editar");
     BTN_B.before(BTN_E);
-
   }
   return NODE;
 }
-
 
 document.addEventListener("DOMContentLoaded", () => {
   console.log("🚀 Aplicación iniciada. Filtro actual:", ESTADO.filtro); // RF3
@@ -160,26 +177,30 @@ document.addEventListener("DOMContentLoaded", () => {
   document.title = t("tituloPag");
   document.querySelector("h1").textContent = t("nombreWeb");
   document.querySelector("button[data-hash='#hoy']").textContent = t("hoy");
-  document.querySelector("button[data-hash='#semana']").textContent = t("semana");
+  document.querySelector("button[data-hash='#semana']").textContent =
+    t("semana");
   document.querySelector("button[data-hash='#todas']").textContent = t("todas");
   document.querySelector("#formTitle").textContent = t("titulo");
   document.querySelector("label:first-child span").textContent = t("texto");
   document.querySelector("label:nth-child(2) span").textContent = t("fecha");
-  document.querySelector("label:nth-child(3) span").textContent = t("prioridad");
+  document.querySelector("label:nth-child(3) span").textContent =
+    t("prioridad");
   document.querySelector("option[value='1']").textContent = t("baja");
   document.querySelector("option[value='2']").textContent = t("media");
   document.querySelector("option[value='3']").textContent = t("alta");
   document.querySelector("button[type='submit']").textContent = t("aniadir");
   document.querySelector("h2#listTitle").textContent = t("lista");
   document.querySelector("#btnPanelDiario").textContent = t("panel");
-  document.querySelectorAll("nav [data-hash]").forEach(btn => {
+  document.querySelectorAll("nav [data-hash]").forEach((btn) => {
     btn.addEventListener("click", () => {
       location.hash = btn.getAttribute("data-hash");
       console.log("🔗 Hash cambiado a:", location.hash); // RF3
     });
   });
   document.getElementById("formNota").addEventListener("submit", onSubmitNota);
-  document.getElementById("btnPanelDiario").addEventListener("click", abrirPanelDiario);
+  document
+    .getElementById("btnPanelDiario")
+    .addEventListener("click", abrirPanelDiario);
   // Delegación de eventos para todos los botones dentro de la lista de notas
   document.getElementById("listaNotas").addEventListener("click", onAccionNota);
 
@@ -203,7 +224,6 @@ document.addEventListener("DOMContentLoaded", () => {
   cargarSnapshots();
 });
 
-
 // Actualiza el filtro de notas según el hash de la URL
 window.addEventListener("hashchange", () => {
   ESTADO.filtro = obtenerFiltroDesdeHash();
@@ -215,18 +235,22 @@ function crearNota(texto, fecha, prioridad) {
   const T = String(texto).trim();
   const P = Math.max(1, Math.min(3, Number(prioridad) || 1)); // uso de Math y Number
   const F = new Date(fecha); // uso de Date
-  console.log("📝 Intentando crear nota con:", { texto: T, fecha: F, prioridad: P }); // RF1
-  if (!T || Number.isNaN(F.getTime())) throw new Error("Datos de nota inválidos");
+  console.log("📝 Intentando crear nota con:", {
+    texto: T,
+    fecha: F,
+    prioridad: P,
+  }); // RF1
+  if (!T || Number.isNaN(F.getTime()))
+    throw new Error("Datos de nota inválidos");
   return {
     id: "n" + Math.random().toString(36).slice(2),
     texto: T,
     fecha: F.toISOString().slice(0, 10),
     prioridad: P,
     completada: false,
-    editable: false
+    editable: false,
   };
 }
-
 
 function obtenerFiltroDesdeHash() {
   const H = (location.hash || "#todas").toLowerCase();
@@ -237,21 +261,24 @@ function obtenerFiltroDesdeHash() {
 function filtrarNotas(notas) {
   const HOY = new Date();
   const YMD = HOY.toISOString().slice(0, 10);
-  if (ESTADO.filtro === "#hoy") return notas.filter(n => n.fecha === YMD);
+  if (ESTADO.filtro === "#hoy") return notas.filter((n) => n.fecha === YMD);
   if (ESTADO.filtro === "#semana") {
     const FIN = new Date(HOY);
     FIN.setDate(HOY.getDate() + 7);
-    return notas.filter(n => new Date(n.fecha) >= HOY && new Date(n.fecha) <= FIN);
+    return notas.filter(
+      (n) => new Date(n.fecha) >= HOY && new Date(n.fecha) <= FIN
+    );
   }
   return notas;
 }
 
 //Ordenar las notas por prioridad de manera descendente
 function ordenarNotas(notas) {
-  return [...notas].sort((a, b) =>
-    b.prioridad - a.prioridad ||
-    new Date(a.fecha) - new Date(b.fecha) ||
-    a.texto.localeCompare(b.texto)
+  return [...notas].sort(
+    (a, b) =>
+      b.prioridad - a.prioridad ||
+      new Date(a.fecha) - new Date(b.fecha) ||
+      a.texto.localeCompare(b.texto)
   );
 }
 
@@ -266,22 +293,28 @@ function render() {
 
   // Crear una constante FRAGMENT con llamada al la función crearNotaDOM(), para poder utilizar la plantilla
   const FRAGMENT = document.createDocumentFragment();
+<<<<<<< Updated upstream
   NOTAS_ORDENADAS.forEach(nota => FRAGMENT.appendChild(crearNotaDOM(nota)));
+=======
+  ESTADO.notas.forEach((nota) => FRAGMENT.appendChild(crearNotaDOM(nota)));
+>>>>>>> Stashed changes
   document.getElementById("listaNotas").appendChild(FRAGMENT);
   // console.log("🧱 Renderizando", ESTADO.notas.length, "notas visibles."); // RF4
 
 
   /*
-  * En esta linea se agregaban un listener para cada una es decir 2 en total 
-  * CONT.querySelectorAll("button[data-acc]").forEach(btn => btn.addEventListener("click", onAccionNota));
-  * Hemos creado un solo listener para ambos botones modificando el método onActionNota()
-  */
+   * En esta linea se agregaban un listener para cada una es decir 2 en total
+   * CONT.querySelectorAll("button[data-acc]").forEach(btn => btn.addEventListener("click", onAccionNota));
+   * Hemos creado un solo listener para ambos botones modificando el método onActionNota()
+   */
 }
 
 //Formatea la fecha dependiendo del idioma
 function formatearFecha(ymd) {
   const D = new Date(ymd);
-  return new Intl.DateTimeFormat(navigator.language || "es-ES", { dateStyle: "medium" }).format(D);
+  return new Intl.DateTimeFormat(navigator.language || "es-ES", {
+    dateStyle: "medium",
+  }).format(D);
 }
 
 // Gestiona la creación de una nueva nota, la guarda en localStorage y actualiza la lista en pantalla
@@ -289,7 +322,8 @@ function onSubmitNota(e) {
   e.preventDefault();
   const TEXTO = document.getElementById("txtTexto").value;
   const FECHA = document.getElementById("txtFecha").value;
-  if (new Date(FECHA) <= new Date(new Date().setHours(0, 0, 0, 0))) return alert("La fecha tiene que ser posterior a hoy");
+  if (new Date(FECHA) <= new Date(new Date().setHours(0, 0, 0, 0)))
+    return alert("La fecha tiene que ser posterior a hoy");
   const PRIORIDAD = document.getElementById("selPrioridad").value;
   try {
     const NOTA = crearNota(TEXTO, FECHA, PRIORIDAD);
@@ -300,7 +334,9 @@ function onSubmitNota(e) {
 
     alert("Nota creada");
     render();
-  } catch (err) { alert(err.message); }
+  } catch (err) {
+    alert(err.message);
+  }
 }
 
 // Crear metodo para cargar todas las notas en el localStorage
@@ -321,9 +357,8 @@ function cargarNotas() {
       fecha: N.fecha,
       prioridad: N.prioridad,
       completada: N.completada || false,
-      editable: N.editable || false
-    }
-    );
+      editable: N.editable || false,
+    });
   }
 }
 
@@ -333,14 +368,14 @@ function onAccionNota(e) {
   const BTN = e.target.closest("button[data-acc]");
   const ID = BTN.getAttribute("data-id");
   const ACC = BTN.getAttribute("data-acc");
-  const IDX = ESTADO.notas.findIndex(n => n.id === ID);
+  const IDX = ESTADO.notas.findIndex((n) => n.id === ID);
   if (IDX < 0) return;
   // Para borrar, completar y revertir
   console.log("⚙️ Acción de nota:", ACC, "ID:", ID); // RF8
   if (ACC === "borrar" && confirm(t("borrar"))) {
     ESTADO.notas.splice(IDX, 1);
     //alertar que la nota se ha eliminado
-    alert("Nota borrada correctamente.")
+    alert("Nota borrada correctamente.");
   }
   if (ACC === "completar") ESTADO.notas[IDX].completada = true;
   if (ACC === "revertir") ESTADO.notas[IDX].completada = false;
@@ -351,10 +386,12 @@ function onAccionNota(e) {
     const DATE = CARD.querySelector("input[type='date']");
 
     if (!TEXT.textContent) return alert("El texto no puede estar vacío.");
-    if (TEXT.textContent.length > 200) return alert("El texto no puede contener más de 200 caracteres.");
+    if (TEXT.textContent.length > 200)
+      return alert("El texto no puede contener más de 200 caracteres.");
 
-    if (!(DATE.value)) return alert("La fecha no puede estar vacía.");
-    if (new Date(DATE.value) <= new Date(new Date().setHours(0, 0, 0, 0))) return alert("La fecha debe ser posterior a hoy.");
+    if (!DATE.value) return alert("La fecha no puede estar vacía.");
+    if (new Date(DATE.value) <= new Date(new Date().setHours(0, 0, 0, 0)))
+      return alert("La fecha debe ser posterior a hoy.");
 
     ESTADO.notas[IDX].editable = false;
     ESTADO.notas[IDX].texto = TEXT.textContent;
@@ -364,19 +401,27 @@ function onAccionNota(e) {
   localStorage.setItem("notasApp:data", JSON.stringify(ESTADO.notas));
   guardarSnapshot();
   // Actualizar el contador de notas semanales completadas
-  document.getElementById("notas").textContent = contarNotasSemanalesCompletadas();
+  document.getElementById("notas").textContent =
+    contarNotasSemanalesCompletadas();
   render();
 }
 
 function abrirPanelDiario() {
   console.log("🪟 Abriendo Panel Diario..."); // RF7
   const REF = window.open("panel.html", "PanelDiario", "width=420,height=560");
-  if (!REF) { alert("Pop-up bloqueado. Permita ventanas emergentes."); return; }
+  if (!REF) {
+    alert("Pop-up bloqueado. Permita ventanas emergentes.");
+    return;
+  }
   const SNAPSHOT = { tipo: "SNAPSHOT", notas: filtrarNotas(ESTADO.notas) };
   console.log("📤 Enviando snapshot al panel:", SNAPSHOT); // RF10
   //Nos aseguramos que los datos que se muestren sean los actualizados
   localStorage.setItem("notasApp:data", JSON.stringify(ESTADO.notas));
-  setTimeout(() => { try { REF.postMessage(SNAPSHOT, "*"); } catch { } }, 400);
+  setTimeout(() => {
+    try {
+      REF.postMessage(SNAPSHOT, "*");
+    } catch {}
+  }, 400);
 }
 
 // Escucha mensajes de ventanas externas y, si indica BORRADO, elimina la nota correspondiente y actualiza la interfaz
@@ -384,7 +429,7 @@ window.addEventListener("message", (ev) => {
   if (!ev.data || typeof ev.data !== "object") return;
   if (ev.data.tipo === "BORRADO") {
     const ID = ev.data.id;
-    ESTADO.notas = ESTADO.notas.filter(n => n.id !== ID);
+    ESTADO.notas = ESTADO.notas.filter((n) => n.id !== ID);
     //Es nesario actualizar el local storage
     localStorage.setItem("notasApp:data", JSON.stringify(ESTADO.notas));
     render();
@@ -392,9 +437,14 @@ window.addEventListener("message", (ev) => {
 });
 
 function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c]));
+  return String(s).replace(
+    /[&<>"']/g,
+    (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[
+        c
+      ])
+  );
 }
-
 
 // Cambiar el tema de color
 document.getElementById("tema").addEventListener("click", function (event) {
@@ -415,7 +465,7 @@ document.getElementById("tema").addEventListener("click", function (event) {
 });
 
 // Cambiar el tamaño de la página
-document.querySelectorAll(".tamanio").forEach(tamanio => {
+document.querySelectorAll(".tamanio").forEach((tamanio) => {
   tamanio.addEventListener("click", function (event) {
     event.preventDefault();
     let size;
@@ -457,9 +507,13 @@ function contarNotasSemanalesCompletadas() {
   const finSemana = new Date(hoy);
   finSemana.setDate(hoy.getDate() + 7);
   let contador = 0;
-  notas.forEach(nota => {
+  notas.forEach((nota) => {
     const fechaNota = new Date(nota.fecha);
-    if (nota.completada === true && fechaNota >= hoy && fechaNota <= finSemana) {
+    if (
+      nota.completada === true &&
+      fechaNota >= hoy &&
+      fechaNota <= finSemana
+    ) {
       contador++;
     }
   });
@@ -475,7 +529,7 @@ function guardarSnapshot() {
   const prefix = "notasApp:hist:";
 
   // Obtener snapshots existentes
-  const keys = Object.keys(localStorage).filter(k => k.startsWith(prefix));
+  const keys = Object.keys(localStorage).filter((k) => k.startsWith(prefix));
 
   // Borrar la más antigua si ya hay 5
   if (keys.length >= maxSnapshots) {
@@ -495,11 +549,11 @@ function guardarSnapshot() {
   select.innerHTML = "";
 
   const nuevasKeys = Object.keys(localStorage)
-    .filter(k => k.startsWith(prefix))
+    .filter((k) => k.startsWith(prefix))
     .sort()
     .reverse(); // más recientes primero
 
-  nuevasKeys.forEach(k => {
+  nuevasKeys.forEach((k) => {
     const fecha = k.replace(prefix, "");
     const op = document.createElement("option");
     op.value = k;
@@ -534,7 +588,9 @@ function insertarSnapshots() {
   btnSubmit.after(cont);
 
   // Listener del botón recuperar
-  document.getElementById("btnRecuperarSnap").addEventListener("click", recuperarSnapshot);
+  document
+    .getElementById("btnRecuperarSnap")
+    .addEventListener("click", recuperarSnapshot);
 }
 
 function recuperarSnapshot() {
@@ -569,11 +625,11 @@ function cargarSnapshots() {
   select.innerHTML = "";
 
   const keys = Object.keys(localStorage)
-    .filter(k => k.startsWith(prefix))
+    .filter((k) => k.startsWith(prefix))
     .sort()
     .reverse(); // más nuevas primero
 
-  keys.forEach(k => {
+  keys.forEach((k) => {
     const fecha = k.replace(prefix, "");
     const op = document.createElement("option");
     op.value = k;
