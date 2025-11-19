@@ -76,12 +76,6 @@ function crearNotaDOM(nota) {
   NODE.dataset.id = nota.id;
   //Prioridad
   const PRI = NODE.querySelector(".pri");
-<<<<<<< Updated upstream
-  PRI.textContent = " [P" + nota.prioridad + "] ";
-  PRI.style.diplay = "inline-block";
-  PRI.style.marginRight = "10px";
-  //Texto y fecha 
-=======
   PRI.textContent = "[P" + nota.prioridad + "]";
   PRI.style.diplay = "inline-block";
   PRI.style.marginRight = "10px";
@@ -99,7 +93,6 @@ function crearNotaDOM(nota) {
       break;
   }
   //Texto y fecha
->>>>>>> Stashed changes
   const TEXTO = NODE.querySelector(".texto");
   TEXTO.textContent = nota.texto;
   const TIME = NODE.querySelector(".fecha");
@@ -293,11 +286,7 @@ function render() {
 
   // Crear una constante FRAGMENT con llamada al la función crearNotaDOM(), para poder utilizar la plantilla
   const FRAGMENT = document.createDocumentFragment();
-<<<<<<< Updated upstream
   NOTAS_ORDENADAS.forEach(nota => FRAGMENT.appendChild(crearNotaDOM(nota)));
-=======
-  ESTADO.notas.forEach((nota) => FRAGMENT.appendChild(crearNotaDOM(nota)));
->>>>>>> Stashed changes
   document.getElementById("listaNotas").appendChild(FRAGMENT);
   // console.log("🧱 Renderizando", ESTADO.notas.length, "notas visibles."); // RF4
 
