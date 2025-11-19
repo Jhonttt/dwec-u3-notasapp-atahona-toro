@@ -40,4 +40,5 @@ las notas, lo que nos permite crea una estructura de HTML más limpia y fácil d
 
 - Para recuperar cada una de las snapshoot recogemos el valor `value` de dicha snapshoot y como trabajamos con keys, recuperamos dicha key, restaurando el estado la nota. Y actualizando el localStorage principal `<localStorage.setItem("notasApp:data, JSON.stringify(ESTADO.notas)")>`. 
 
+- Uso de chatGPT para mejorar el aspecto visual de la página, editando el css 
 © 2025-10-27 — DWEC

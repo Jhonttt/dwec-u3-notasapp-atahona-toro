@@ -76,9 +76,9 @@ function crearNotaDOM(nota) {
   NODE.dataset.id = nota.id;
   //Prioridad
   const PRI = NODE.querySelector(".pri");
-  PRI.textContent=" [P"+nota.prioridad+"] ";
-  PRI.style.diplay="inline-block";
-  PRI.style.marginRight="10px";
+  PRI.textContent = " [P" + nota.prioridad + "] ";
+  PRI.style.diplay = "inline-block";
+  PRI.style.marginRight = "10px";
   //Texto y fecha 
   const TEXTO = NODE.querySelector(".texto");
   TEXTO.textContent = nota.texto;
@@ -410,27 +410,39 @@ document.getElementById("tema").addEventListener("click", function (event) {
   }
 });
 
-
 // Cambiar el tamaño de la página
 document.querySelectorAll(".tamanio").forEach(tamanio => {
   tamanio.addEventListener("click", function (event) {
     event.preventDefault();
+    let size;
     switch (tamanio.getAttribute("id")) {
       case "a3":
-        document.querySelector("*").style.fontSize = "1.6em";
+       size = "1.6em";
         break;
       case "a4":
-        document.querySelector("*").style.fontSize = "1.25em";
+       size = "1.25em";
         break;
       case "a5":
-        document.querySelector("*").style.fontSize = "1em";
+       size = "1em";
         break;
       default:
-        document.querySelector("*").style.fontSize = "1em";
+       size = "1em";
         break;
     }
+     //aplicar css inline
+    document.documentElement.style.fontSize=size;
+    //almacenamos el valor po defecto que quiera el ususario
+    localStorage.setItem("tamanioLetras",size);
   });
 });
+
+//creamos una contante para que persista el tamaño de letra
+const tamanioLetra=localStorage.getItem("tamanioLetras");
+if(tamanioLetra){
+document.documentElement.style.fontSize=tamanioLetra;
+} else{
+  document.documentElement.style.fontSize="1em";
+}
 
 // Contador de notas semanales completadas
 function contarNotasSemanalesCompletadas() {
