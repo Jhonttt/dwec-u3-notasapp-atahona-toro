@@ -31,8 +31,7 @@
 
 - Nos hemos ayudado de la plataforma de documentación de MDN para comprender el uso de algunas funciones, formato y como utilizarlo, además, también hemos acudido a Chat GPT4, para consultar algunas cuestiones técnicas, o errores de lógica, para mejorar el funcionamiento del programa.
 
-- Hemos realizado una plantilla para cada una de las notas con la etiqueta `<template>` para generar dinámicamente 
-las notas, lo que nos permite crea una estructura de HTML más limpia y fácil de mantener, reduciendo errores y manteniendo la legibilidad, evitando la duplicación de código.
+- Hemos realizado una plantilla para cada una de las notas con la etiqueta `<template>` para generar dinámicamente  las notas, lo que nos permite crea una estructura de HTML más limpia y fácil de mantener, reduciendo errores y manteniendo la legibilidad, evitando la duplicación de código.
 
 - Adicional a todo lo mencionado anteriormente, hemos optado por realizar una delegación de códigos para los botones en lugar de asignar listeners individuales a cada botón, esto mejora considerablemente el rendimiento y reduce el consumo de memoria, sobre todo en funciones como crear o modificar alguna nota.
 

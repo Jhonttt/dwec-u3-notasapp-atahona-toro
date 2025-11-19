@@ -6,7 +6,7 @@ const TRAD = {
     completada: "Completar",
     revertir: "Revertir",
     borrarBtn: "Borrar",
-    titulo: "NotasApp — DWEC U3",
+    tituloPag: "NotasApp — DWEC U3",
     nombreWeb: "NotasApp",
     hoy: "Hoy",
     semana: "Semana",
@@ -30,7 +30,7 @@ const TRAD = {
     completada: "Complete",
     revertir: "Undo",
     borrarBtn: "Delete",
-    titulo: "NotesApp — DWEC U3",
+    tituloPag: "NotesApp — DWEC U3",
     nombreWeb: "NotesApp",
     hoy: "Today",
     semana: "Week",
@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("🚀 Aplicación iniciada. Filtro actual:", ESTADO.filtro); // RF3
   console.log("🌍 Idioma actual del navegador:", navigator.language); // RF2
   //Traducimos las palabras dependiendo del idioma seleccionado
-  document.title = t("titulo");
+  document.title = t("tituloPag");
   document.querySelector("h1").textContent = t("nombreWeb");
   document.querySelector("button[data-hash='#hoy']").textContent = t("hoy");
   document.querySelector("button[data-hash='#semana']").textContent = t("semana");
@@ -261,11 +261,15 @@ function render() {
   const CONT = document.getElementById("listaNotas");
   CONT.innerHTML = "";
 
-  // Crear una constante FRAGMEN con llamada al la función crearNotaDOM(), para poder utilizar la plantilla
+  //Ordenamos las notas antes de crear el fragmento y las filtramos segun #hoy, #semana, #todas
+  const NOTAS_ORDENADAS= ordenarNotas(filtrarNotas(ESTADO.notas));
+
+  // Crear una constante FRAGMENT con llamada al la función crearNotaDOM(), para poder utilizar la plantilla
   const FRAGMENT = document.createDocumentFragment();
-  ESTADO.notas.forEach(nota => FRAGMENT.appendChild(crearNotaDOM(nota)));
+  NOTAS_ORDENADAS.forEach(nota => FRAGMENT.appendChild(crearNotaDOM(nota)));
   document.getElementById("listaNotas").appendChild(FRAGMENT);
   // console.log("🧱 Renderizando", ESTADO.notas.length, "notas visibles."); // RF4
+
 
   /*
   * En esta linea se agregaban un listener para cada una es decir 2 en total 
